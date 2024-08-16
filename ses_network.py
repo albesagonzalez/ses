@@ -121,7 +121,7 @@ class SESNetwork(nn.Module):
       return x_prime
 
     def pattern_complete_hpc(self, h_0=None):
-      h = self.pfc_hpc(self.pfc) if h_0 == None else h_0
+      h = self.hpc_hpc(self.hpc) if h_0 == None else h_0
       for iteration in range(self.pattern_complete_iterations):
         h = self.beta_hpc*h + self.activation_hpc(self.gamma_hpc_hpc*F.linear(h, self.hpc_hpc))
       return h
