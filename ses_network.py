@@ -279,7 +279,7 @@ class SESNetwork(nn.Module):
       self.connectivity_recordings_rate = rec_params["rate_connectivity"]
 
     def record(self):
-      if self.time_index%self.activity_recordings_rate == 1:
+      if self.time_index%self.activity_recordings_rate == 0:
         for region in self.activity_recordings:
           layer_activity = getattr(self, region)
           self.activity_recordings[region] = np.append(self.activity_recordings[region], [deepcopy(layer_activity.detach().numpy())], axis=0)
