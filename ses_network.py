@@ -50,6 +50,8 @@ class SESNetwork(nn.Module):
             self.pfc = self.activation_pfc(self.pfc)
             self.mec_hat = self.gamma_mec_pfc*F.linear(self.pfc, self.mec_pfc)
             self.mec = self.activation_mec(self.mec_hat)
+          #forward mec activity to hpc
+          self.hpc[self.lec_size:] = self.mec
           #store hpc pattern
           self.hebbian_hpc_hpc()
           #potentiate hpc to pfc
@@ -58,8 +60,7 @@ class SESNetwork(nn.Module):
             self.pfc = self.pattern_complete_pfc()
             self.pfc = self.activation_pfc(self.pfc)
 
-        #forward mec activity to hpc
-        self.hpc[self.lec_size:] = self.mec
+
         self.time_index += 1
 
         self.record()
