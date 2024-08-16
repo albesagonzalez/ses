@@ -130,7 +130,7 @@ class SESNetwork(nn.Module):
       h = self.pfc if h_0 == None else h_0
       num_iterations = self.pattern_complete_iterations if num_iterations == None else num_iterations
       for iteration in range(num_iterations):
-        h = self.beta_pfc*h + (1 - network.beta_pfc)*self.activation_pfc(self.gamma_pfc_pfc*F.linear(h, self.pfc_pfc), top_k)
+        h = self.beta_pfc*h + (1 - self.beta_pfc)*self.activation_pfc(self.gamma_pfc_pfc*F.linear(h, self.pfc_pfc), top_k)
       return h
 
     def hebbian_hpc_hpc(self):
@@ -151,13 +151,13 @@ class SESNetwork(nn.Module):
       self.pfc_mec += self.lmbda_pfc_mec*torch.outer(self.mec, self.pfc)
 
     def homeostasis_pfc_pfc(self):
-      if network.homeostasis == 'none':
+      if self.homeostasis == 'none':
         pass
 
-      elif network.homeostasis == 'bound':
-        network.pfc_pfc = torch.clip(network.pfc_pfc, min=None, max=network.max_connectivity/100)
+      elif self.homeostasis == 'bound':
+        self.pfc_pfc = torch.clip(self.pfc_pfc, min=None, max=self.max_connectivity/100)
 
-      elif network.homeostasis == 'renorm':
+      elif self.homeostasis == 'renorm':
 
 
         # Calculate the total pre-connectivity for each neuron
