@@ -314,6 +314,7 @@ class SESNetwork(nn.Module):
       #initialize temporal variables
       self.time_index = 0
       self.baby_days = 0
+      self.adolescent_days = 0
 
     def init_recordings(self, rec_params):
       self.activity_recordings = {}
