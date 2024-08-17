@@ -215,7 +215,7 @@ def get_sample_from_num_swaps(x_0, num_swaps):
 
 
 
-def make_input(num_days, day_length, mean_duration, fixed_duration, num_swaps, latent_space):
+def make_input(num_days, day_length, mean_duration, fixed_duration, num_swaps, latent_space, satellite=False):
   def get_partial_circle():
     delta_theta = 45
     image = np.zeros((40, 25), dtype=np.uint8)
@@ -257,7 +257,8 @@ def make_input(num_days, day_length, mean_duration, fixed_duration, num_swaps, l
     return x
 
   #initialize input tensor
-  input = torch.zeros((num_days, day_length, sum(latent_space.total_sizes)))
+  #input = torch.zeros((num_days, day_length, sum(latent_space.total_sizes)))
+  input = torch.zeros((num_days, day_length, latent_space.total_size))
   input_latents = torch.zeros((num_days, day_length), dtype=torch.int32)
 
   #create input from noisy patterns
@@ -266,8 +267,12 @@ def make_input(num_days, day_length, mean_duration, fixed_duration, num_swaps, l
     while day_timestep < day_length:
       #pattern_duration = pattern_duration if (day_timestep + pattern_duration <= day_length) else day_length - day_timestep
       pattern_duration = mean_duration if fixed_duration else int(torch.poisson(mean_duration*torch.ones(1))[0])
-      label, pattern = latent_space.sample()
-      input_latents[day, day_timestep:day_timestep+pattern_duration] = latent_space.label_to_index[label]
+      if satellite:
+        latent_index, pattern = latent_space.sample()
+        input_latents[day, day_timestep:day_timestep+pattern_duration] = latent_index
+      else:
+        label, pattern = latent_space.sample()
+        input_latents[day, day_timestep:day_timestep+pattern_duration] = latent_space.label_to_index[label]
       #label, pattern =  get_partial_circle()
       #input_latents[day, day_timestep:day_timestep+pattern_duration] = label
       input[day, day_timestep:(day_timestep+pattern_duration)] = get_sample_from_num_swaps(pattern, num_swaps)
