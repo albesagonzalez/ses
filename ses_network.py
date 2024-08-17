@@ -35,7 +35,8 @@ class SESNetwork(nn.Module):
 
 
         #forward sensory and hpc to pfc
-        self.pfc_hat = self.gamma_pfc_sen*input[timestep] + self.gamma_pfc_lec*F.linear(self.lec, self.pfc_lec) + self.gamma_pfc_mec*F.linear(self.mec, self.pfc_mec)
+        #self.pfc_hat = self.gamma_pfc_sen*input[timestep] + self.gamma_pfc_lec*F.linear(self.lec, self.pfc_lec) + self.gamma_pfc_mec*F.linear(self.mec, self.pfc_mec)
+        self.pfc_hat = self.gamma_pfc_sen*input[timestep] + self.gamma_pfc_lec*F.linear(self.lec, self.pfc_lec)
 
         pfc_hat_noise_std = self.pfc_hat[torch.abs(self.pfc_hat) != 0].min()/10
         self.pfc_hat = self.pfc_hat + torch.randn_like(self.pfc_hat) * pfc_hat_noise_std
