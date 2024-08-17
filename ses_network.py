@@ -313,7 +313,7 @@ class SESNetwork(nn.Module):
       self.max_pre_pfc_pfc_connectivity = (1/self.eta_pre_pfc_pfc)*self.max_connectivity if self.eta_pre_pfc_pfc != 0 else np.inf
       self.max_post_pfc_pfc_connectivity = (1/(1 - self.eta_pre_pfc_pfc))*self.max_connectivity if self.eta_pre_pfc_pfc != 1 else np.inf
       self.max_pre_mec_pfc_connectivity = 0.1*(1/self.eta_pre_mec_pfc)*self.max_connectivity if self.eta_pre_mec_pfc != 0 else np.inf
-      self.max_post_mec_pfc_connectivity = (1/(1 - self.eta_pre_mec_pfc))*self.max_connectivity if self.eta_pre_mec_pfc != 1 else np.inf
+      self.max_post_mec_pfc_connectivity = 0.1*(1/(1 - self.eta_pre_mec_pfc))*self.max_connectivity if self.eta_pre_mec_pfc != 1 else np.inf
       self.max_pre_pfc_mec_connectivity = (1/self.eta_pre_pfc_mec)*self.max_connectivity if self.eta_pre_pfc_mec != 0 else np.inf
       self.max_post_pfc_mec_connectivity = 0.1*(1/(1 - self.eta_pre_pfc_mec))*self.max_connectivity if self.eta_pre_pfc_mec != 1 else np.inf
 
