@@ -139,7 +139,7 @@ class SESNetwork(nn.Module):
 
     def hebbian_pfc_pfc(self):
       self.pfc_pfc += self.lmbda_pfc_pfc*torch.outer(self.pfc, self.pfc)
-      self.pfc_pfc.fill_diagonal_(0.)
+      #self.pfc_pfc.fill_diagonal_(0.)
 
     def hebbian_pfc_lec(self):
       self.pfc_lec += self.lmbda_pfc_lec*torch.outer(self.pfc, self.lec)
