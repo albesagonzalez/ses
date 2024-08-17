@@ -161,7 +161,7 @@ class SESNetwork(nn.Module):
       self.mec_pfc += self.lmbda_mec_pfc*torch.outer(self.mec, self.pfc)
 
     def hebbian_pfc_mec(self):
-      self.pfc_mec += self.lmbda_pfc_mec*torch.outer(self.mec, self.pfc)
+      self.pfc_mec += self.lmbda_pfc_mec*torch.outer(self.pfc, self.mec)
 
     def homeostasis_pfc_pfc(self):
       if self.homeostasis == 'none':
