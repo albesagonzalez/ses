@@ -46,6 +46,9 @@ class SESNetwork(nn.Module):
         self.pfc = self.activation_pfc(self.pfc_hat)
 
         if not test:
+          #potentiate hpc to pfc
+          self.hebbian_pfc_lec()
+
           if self.baby_days < self.total_baby_days:
             self.mec_hat = torch.zeros((self.mec_size))
             self.mec = torch.zeros((self.mec_size))
@@ -63,9 +66,6 @@ class SESNetwork(nn.Module):
           self.hpc[self.lec_size:] = self.mec
           #store hpc pattern
           self.hebbian_hpc_hpc()
-          #potentiate hpc to pfc
-          self.hebbian_pfc_lec()
-
 
 
         else:
@@ -133,7 +133,6 @@ class SESNetwork(nn.Module):
 
     def activation_pfc(self, x, top_k=None):
       top_k = int(self.pfc_size*self.pfc_sparsity) if top_k==None else top_k
-
       x_prime = torch.zeros(x.shape)
       x_prime[torch.topk(x, top_k).indices] = 1
 
