@@ -87,9 +87,92 @@ class LatentSpace():
           marginal += prob
       return marginal
 
-
     def sample(self):
       return random.choices(list(self.label_to_neurons.items()), weights=list(self.label_to_probs.values()))[0]
+    
+
+class SatelliteSpace():
+  def __init__(self, neoctx_size):
+    self.neoctx_size = neoctx_size
+    self.total_size = self.neoctx_size
+    self.names = ["gavan", "volar", "motar", "nivex", "sorex", "denor", "sopra", "funda", "bacta", "gondo", "malar", "benin", "colar", "nodon", "praxa"]
+    self.alpha_names = ["gavan", "volar", "motar", "nivex", "sorex"]
+    self.beta_names = ["denor", "sopra", "funda", "bacta", "gondo"]
+    self.gamma_names = ["malar", "benin", "colar", "nodon", "praxa"]
+    self.classes = ["alpha", "beta", "gamma"]
+    self.num_classes = len(self.classes)
+    self.num_names = len(self.names)
+    self.alpha_prototype = []
+    self.name_to_class = {
+        name: class_
+        for class_names, class_ in zip([self.alpha_names, self.beta_names, self.gamma_names], self.classes)
+        for name in class_names
+    }
+    self.num_attributes = 5
+    self.name_to_attributes = {
+        name: self.get_attributes_from_name(name)
+        for name in self.names
+    }
+    self.name_to_neural = {
+        name: self.get_neural_from_name(name)
+        for name in self.names
+    }
+    self.element_to_neural = self.get_elements_to_neural()
+
+  def get_elements_to_neural(self):
+      elements_to_neural = {}
+      attributes = ["name", "class", "attribute1", "attribute2", "attribute3", "attribute4", "attribute5"]
+      elements_per_attribute = [15, 3, 3, 6, 6, 6, 6]
+      n_act = 25
+      starting = 0
+      for attribute_index, attribute in enumerate(attributes):
+        neurals = []
+        for element in range(elements_per_attribute[attribute_index]):
+          neural = torch.zeros(self.neoctx_size)
+          neural[starting:starting+n_act] = 1
+          starting += n_act
+          neurals.append(neural)
+        elements_to_neural[attribute] = neurals
+      return elements_to_neural
+  def get_attributes_from_name(self, name):
+    #make a tensor num of attributes (5) times num_classes*2 (6)
+    attributes_0 = torch.zeros((1, self.num_classes))
+    class_index = self.classes.index(self.name_to_class[name])
+    attributes_0[0, class_index] = 1
+    attributes_1 = torch.zeros((self.num_attributes - 1, self.num_classes*2))
+    #get name index (0 to 14)
+    name_index = self.names.index(name)
+    #get name class index --> this is within class index, tells you which of the elements
+    name_class_index = name_index%(self.num_attributes)
+    for att_num in range(self.num_attributes - 1):
+      if name_class_index - 1 == att_num:
+        attributes_1[att_num, class_index+self.num_classes] = 1
+      else:
+        attributes_1[att_num, class_index] = 1
+
+
+    #attributes_0 = torch.zeros_like(attributes_0)
+    attributes = torch.cat([attributes_0.flatten(), attributes_1.flatten()])
+
+    return attributes.flatten()
+
+  def get_neural_from_name(self, name):
+    neural = torch.zeros((self.neoctx_size))
+    neural_name = torch.nn.functional.one_hot(torch.tensor(self.names.index(name)), num_classes=self.num_names)
+    neural_class = torch.nn.functional.one_hot(torch.tensor(self.classes.index(self.name_to_class[name])), num_classes=self.num_classes)
+    neural_attributes = self.name_to_attributes[name]
+    min_neural = torch.cat((neural_name, neural_class, neural_attributes))
+    min_neural_size = len(min_neural)
+    min_neural_repeats = self.neoctx_size//min_neural_size
+    if min_neural_repeats == 0:
+      print("neoctx is not big enough for minimal neural representation, should be at least {}".format(min_neural_size))
+    neural[:min_neural_size*min_neural_repeats] = min_neural.repeat_interleave(min_neural_repeats)
+    return neural
+
+  def sample(self):
+    name = random.choice(self.names)
+    label = self.names.index(name)
+    return label, self.name_to_neural[name]
     
 def get_cos_sim_torch(x1, x2):
   return torch.dot(x1, x2)/(torch.norm(x1)*torch.norm(x2))
