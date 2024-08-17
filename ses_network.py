@@ -35,8 +35,10 @@ class SESNetwork(nn.Module):
 
 
         #forward sensory and hpc to pfc
-        #self.pfc_hat = self.gamma_pfc_sen*input[timestep] + self.gamma_pfc_lec*F.linear(self.lec, self.pfc_lec) + self.gamma_pfc_mec*F.linear(self.mec, self.pfc_mec)
-        self.pfc_hat = self.gamma_pfc_sen*input[timestep] + self.gamma_pfc_lec*F.linear(self.lec, self.pfc_lec)
+        if self.baby_days < self.total_baby_days:
+          self.pfc_hat = self.gamma_pfc_sen*input[timestep] + self.gamma_pfc_lec*F.linear(self.lec, self.pfc_lec) + self.gamma_pfc_mec*F.linear(self.mec, self.pfc_mec)
+        else:
+          self.pfc_hat = self.gamma_pfc_sen*input[timestep] + self.gamma_pfc_lec*F.linear(self.lec, self.pfc_lec)
 
         pfc_hat_noise_std = self.pfc_hat[torch.abs(self.pfc_hat) != 0].min()/10
         self.pfc_hat = self.pfc_hat + torch.randn_like(self.pfc_hat) * pfc_hat_noise_std
@@ -51,12 +53,20 @@ class SESNetwork(nn.Module):
             self.pfc = self.activation_pfc(self.pfc)
             self.mec_hat = self.gamma_mec_pfc*F.linear(self.pfc, self.mec_pfc)
             self.mec = self.activation_mec(self.mec_hat)
+            #statistical in mec to pfc
+            self.hebbian_pfc_mec()
+            self.homeostasis_pfc_mec()
+
+
           #forward mec activity to hpc
           self.hpc[self.lec_size:] = self.mec
           #store hpc pattern
           self.hebbian_hpc_hpc()
           #potentiate hpc to pfc
           self.hebbian_pfc_lec()
+
+
+
         else:
             self.pfc = self.pattern_complete_pfc()
             self.pfc = self.activation_pfc(self.pfc)
@@ -224,6 +234,35 @@ class SESNetwork(nn.Module):
       self.mec_pfc = self.mec_pfc * pre_scaling_factors
 
 
+    def homeostasis_pfc_mec(self):
+      # Calculate the total pre-connectivity for each neuron
+      total_post_connectivity = torch.sum(self.pfc_mec, dim=1)
+      # Identify neurons that exceed the max pre-connectivity
+      post_exceeding_mask = total_post_connectivity > self.max_post_pfc_mec_connectivity
+      # Scale the connectivities of the exceeding neurons
+      post_scaling_factors = torch.where(
+          post_exceeding_mask,
+          self.max_post_pfc_mec_connectivity / total_post_connectivity,
+          torch.ones_like(total_post_connectivity)
+      )
+      # Apply the scaling factors to the connectivity matrix
+      self.pfc_mec = self.pfc_mec * post_scaling_factors.unsqueeze(1)
+
+
+      # Calculate the total pre-connectivity for each neuron
+      total_pre_connectivity = torch.sum(self.pfc_mec, dim=0)
+      # Identify neurons that exceed the max pre-connectivity
+      pre_exceeding_mask = total_pre_connectivity > self.max_pre_pfc_mec_connectivity
+      # Scale the connectivities of the exceeding neurons
+      pre_scaling_factors = torch.where(
+          pre_exceeding_mask,
+          self.max_pre_pfc_mec_connectivity / total_pre_connectivity,
+          torch.ones_like(total_pre_connectivity)
+      )
+      # Apply the scaling factors to the connectivity matrix
+      self.pfc_mec = self.pfc_mec * pre_scaling_factors
+
+
     def daily_reset(self):
       self.hpc_hpc = torch.zeros((self.hpc_size, self.hpc_size))
       self.hpc = torch.zeros((self.hpc_size))
@@ -267,7 +306,9 @@ class SESNetwork(nn.Module):
       self.max_pre_pfc_pfc_connectivity = (1/self.eta_pre_pfc_pfc)*self.max_connectivity if self.eta_pre_pfc_pfc != 0 else np.inf
       self.max_post_pfc_pfc_connectivity = (1/(1 - self.eta_pre_pfc_pfc))*self.max_connectivity if self.eta_pre_pfc_pfc != 1 else np.inf
       self.max_pre_mec_pfc_connectivity = 0.1*(1/self.eta_pre_mec_pfc)*self.max_connectivity if self.eta_pre_mec_pfc != 0 else np.inf
-      self.max_post_mec_pfc_connectivity = 0.1*(1/(1 - self.eta_pre_mec_pfc))*self.max_connectivity if self.eta_pre_mec_pfc != 1 else np.inf
+      self.max_post_mec_pfc_connectivity = (1/(1 - self.eta_pre_mec_pfc))*self.max_connectivity if self.eta_pre_mec_pfc != 1 else np.inf
+      self.max_pre_pfc_mec_connectivity = (1/self.eta_pre_pfc_mec)*self.max_connectivity if self.eta_pre_pfc_mec != 0 else np.inf
+      self.max_post_pfc_mec_connectivity = 0.1*(1/(1 - self.eta_pre_pfc_mec))*self.max_connectivity if self.eta_pre_pfc_mec != 1 else np.inf
 
       #initialize temporal variables
       self.time_index = 0
