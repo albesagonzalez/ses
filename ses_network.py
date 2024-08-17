@@ -37,9 +37,9 @@ class SESNetwork(nn.Module):
 
         #forward sensory and hpc to pfc
         if self.adolescent_days < self.total_adolescent_days:
-          self.pfc_hat = self.gamma_pfc_sen*input[timestep] + self.gamma_pfc_lec*F.linear(self.lec, self.pfc_lec) + self.gamma_pfc_mec*F.linear(self.mec, self.pfc_mec)
-        else:
           self.pfc_hat = self.gamma_pfc_sen*input[timestep] + self.gamma_pfc_lec*F.linear(self.lec, self.pfc_lec)
+        else:
+          self.pfc_hat = self.gamma_pfc_sen*input[timestep] + self.gamma_pfc_lec*F.linear(self.lec, self.pfc_lec) + self.gamma_pfc_mec*F.linear(self.mec, self.pfc_mec)
 
         pfc_hat_noise_std = self.pfc_hat[torch.abs(self.pfc_hat) != 0].min()/10
         self.pfc_hat = self.pfc_hat + torch.randn_like(self.pfc_hat) * pfc_hat_noise_std
@@ -83,7 +83,14 @@ class SESNetwork(nn.Module):
         h_0 = torch.bernoulli(self.random_hpc_sparsity*torch.ones(self.hpc_size))
         self.hpc = self.pattern_complete_hpc(h_0)
         self.hpc = self.activation_hpc(self.hpc)
-        self.pfc_hat = self.gamma_pfc_lec*F.linear(self.hpc[:self.lec_size], self.pfc_lec) + self.gamma_pfc_mec*F.linear(self.hpc[self.lec_size:], self.pfc_mec)
+
+
+        if self.adolescent_days < self.total_adolescent_days:
+          self.pfc_hat = self.gamma_pfc_lec*F.linear(self.hpc[:self.lec_size], self.pfc_lec)
+        else:
+          self.pfc_hat = self.gamma_pfc_lec*F.linear(self.hpc[:self.lec_size], self.pfc_lec) + self.gamma_pfc_mec*F.linear(self.hpc[self.lec_size:], self.pfc_mec)
+
+        
         self.pfc = self.activation_pfc(self.pfc_hat)
 
         self.hebbian_pfc_pfc()
