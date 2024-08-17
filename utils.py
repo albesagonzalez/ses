@@ -57,6 +57,7 @@ class LatentSpace():
       self.num_latents = num
       self.dims = dims
       self.total_sizes = total_sizes
+      self.total_size = sum(total_sizes)
       self.act_sizes = act_sizes
       self.random_neurons = random_neurons
       self.latent_patterns = [[self.get_sub_latent(latent, sub_dim) for sub_dim in range(self.dims[latent])] for latent in range(self.num_latents)]
