@@ -138,7 +138,8 @@ class SESNetwork(nn.Module):
       self.hpc_hpc.fill_diagonal_(0.)
 
     def hebbian_pfc_pfc(self):
-      self.pfc_pfc += self.lmbda_pfc_pfc*torch.outer(self.pfc, self.pfc)
+      self.pfc_pfc_plastic += self.lmbda_pfc_pfc*torch.outer(self.pfc, self.pfc)
+      self.pfc_pfc = self.pfc_pfc_fixed + self.pfc_pfc_plastic
       #self.pfc_pfc.fill_diagonal_(0.)
 
     def hebbian_pfc_lec(self):
@@ -155,13 +156,13 @@ class SESNetwork(nn.Module):
         pass
 
       elif self.homeostasis == 'bound':
-        self.pfc_pfc = torch.clip(self.pfc_pfc, min=None, max=self.max_connectivity/100)
-
+        self.pfc_pfc_plastic = torch.clip(self.pfc_pfc_plastic, min=None, max=self.max_connectivity/100)
+        self.pfc_pfc = self.pfc_pfc_fixed + self.pfc_pfc_plastic
       elif self.homeostasis == 'renorm':
 
 
         # Calculate the total pre-connectivity for each neuron
-        total_post_connectivity = torch.sum(self.pfc_pfc, dim=1)
+        total_post_connectivity = torch.sum(self.pfc_pfc_plastic, dim=1)
         # Identify neurons that exceed the max pre-connectivity
         post_exceeding_mask = total_post_connectivity > self.max_post_pfc_pfc_connectivity
         # Scale the connectivities of the exceeding neurons
@@ -171,11 +172,11 @@ class SESNetwork(nn.Module):
             torch.ones_like(total_post_connectivity)
         )
         # Apply the scaling factors to the connectivity matrix
-        self.pfc_pfc = self.pfc_pfc * post_scaling_factors.unsqueeze(1)
+        self.pfc_pfc_plastic = self.pfc_pfc_plastic * post_scaling_factors.unsqueeze(1)
 
 
         # Calculate the total pre-connectivity for each neuron
-        total_pre_connectivity = torch.sum(self.pfc_pfc, dim=0)
+        total_pre_connectivity = torch.sum(self.pfc_pfc_plastic, dim=0)
         # Identify neurons that exceed the max pre-connectivity
         pre_exceeding_mask = total_pre_connectivity > self.max_pre_pfc_pfc_connectivity
         # Scale the connectivities of the exceeding neurons
@@ -185,7 +186,10 @@ class SESNetwork(nn.Module):
             torch.ones_like(total_pre_connectivity)
         )
         # Apply the scaling factors to the connectivity matrix
-        self.pfc_pfc = self.pfc_pfc * pre_scaling_factors
+        self.pfc_pfc_plastic = self.pfc_pfc_plastic * pre_scaling_factors
+
+
+        self.pfc_pfc = self.pfc_pfc_fixed + self.pfc_pfc_plastic
 
       else:
         print("This type of homeostatic plasticity is not implemented")
@@ -248,7 +252,9 @@ class SESNetwork(nn.Module):
       self.hpc_hpc_sparsity_mask = torch.rand((self.hpc_size, self.hpc_size)) < self.hpc_hpc_sparsity
       self.hpc_hpc = nn.Linear(self.hpc_size, self.hpc_size, bias=False).weight.clone().detach()*self.hpc_hpc_g*self.hpc_hpc_sparsity_mask
       self.pfc_pfc_sparsity_mask = torch.rand((self.pfc_size, self.pfc_size)) < self.pfc_pfc_sparsity
-      self.pfc_pfc = nn.Linear(self.pfc_size, self.pfc_size, bias=False).weight.clone().detach()*self.pfc_pfc_g*self.pfc_pfc_sparsity_mask
+      self.pfc_pfc_fixed = nn.Linear(self.pfc_size, self.pfc_size, bias=False).weight.clone().detach()*self.pfc_pfc_g*self.pfc_pfc_sparsity_mask
+      self.pfc_pfc_plastic = torch.zeros((self.pfc_size, self.pfc_size))
+      self.pfc_pfc = self.pfc_pfc_fixed + self.pfc_pfc_plastic
       self.pfc_lec = torch.zeros((self.pfc_size, self.lec_size))
       self.lec_sen = nn.Linear(self.sen_size, self.lec_size, bias=False).weight.clone().detach()
       self.pfc_sen = torch.eye(self.pfc_size)
