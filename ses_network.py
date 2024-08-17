@@ -25,6 +25,7 @@ class SESNetwork(nn.Module):
         self.sleep()
 
       self.baby_days += 1
+      self.adolescent_days += 1
 
     def process_input(self, input, test=False):
       for timestep in range(input.shape[0]):
@@ -35,7 +36,7 @@ class SESNetwork(nn.Module):
 
 
         #forward sensory and hpc to pfc
-        if self.baby_days < self.total_baby_days:
+        if self.adolescent_days < self.total_adolescent_days:
           self.pfc_hat = self.gamma_pfc_sen*input[timestep] + self.gamma_pfc_lec*F.linear(self.lec, self.pfc_lec) + self.gamma_pfc_mec*F.linear(self.mec, self.pfc_mec)
         else:
           self.pfc_hat = self.gamma_pfc_sen*input[timestep] + self.gamma_pfc_lec*F.linear(self.lec, self.pfc_lec)
@@ -53,10 +54,10 @@ class SESNetwork(nn.Module):
             self.pfc = self.activation_pfc(self.pfc)
             self.mec_hat = self.gamma_mec_pfc*F.linear(self.pfc, self.mec_pfc)
             self.mec = self.activation_mec(self.mec_hat)
-            #statistical in mec to pfc
-            self.hebbian_pfc_mec()
-            self.homeostasis_pfc_mec()
-
+            if self.adolescent_days > self.total_adolescent_days:
+              #statistical in mec to pfc
+              self.hebbian_pfc_mec()
+              self.homeostasis_pfc_mec()
 
           #forward mec activity to hpc
           self.hpc[self.lec_size:] = self.mec
