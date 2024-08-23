@@ -22,13 +22,10 @@ class RFNetwork(nn.Module):
         for timestep in range(input.shape[0]):
 
             self.in_hat = input[timestep]
-            self.in_ =  self.pattern_complete(self.in_) if self.do_pattern_complete else self.activation_in(self.in_)
+            self.in_ =  self.pattern_complete(self.in_hat) if self.do_pattern_complete else self.activation_in(self.in)
             
             self.out_hat =  F.linear(self.in_, self.out_in)
             self.out = self.activation_out(self.out_hat, random=(not self.forward_input))
-
-
-            plt.imshow(self.in_.reshape((-1,25)))
 
 
             self.hebbian_in_in()
@@ -40,7 +37,7 @@ class RFNetwork(nn.Module):
 
 
     def activation_in(self, x, random=False):
-      x = torch.randn(x.shape) if random else x + (torch.max(x) - torch.min(x))/10*torch.randn(x.shape)
+      x = torch.randn(x.shape) if random else x + (1e-10 + torch.max(x) - torch.min(x))/10*torch.randn(x.shape)
       x_prime = torch.zeros(x.shape)
       x_prime[torch.topk(x, int(self.in_size*self.in_sparsity)).indices] = 1
       return x_prime
