@@ -49,7 +49,7 @@ class RFNetwork(nn.Module):
  
 
     def pattern_complete(self, h_0=None):
-      h = self.in if h_0 == None else h_0
+      h = self.in_ if h_0 == None else h_0
       for iteration in range(self.pattern_complete_iterations):
         h = self.activation_in(F.linear(h, self.in_in))
       return h
