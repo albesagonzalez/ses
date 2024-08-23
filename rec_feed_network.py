@@ -8,6 +8,8 @@ from copy import deepcopy
 
 from collections import OrderedDict
 
+import matplotlib.pyplot as plt
+
 class RFNetwork(nn.Module):
     def __init__(self, net_params, rec_params):
 
@@ -24,6 +26,9 @@ class RFNetwork(nn.Module):
             
             self.out_hat =  F.linear(self.in_, self.out_in)
             self.out = self.activation_out(self.out_hat, random=(not self.forward_input))
+
+
+            plt.imshow(self.in_.reshape((-1,25)))
 
 
             self.hebbian_in_in()
