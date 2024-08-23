@@ -31,7 +31,7 @@ class RFNetwork(nn.Module):
             self.hebbian_out_in()
             self.homeostasis_out_in()
 
-        self.record()
+            self.record()
 
 
     def activation_in(self, x, random=False):
