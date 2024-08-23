@@ -34,6 +34,7 @@ class RFNetwork(nn.Module):
             self.homeostasis_out_in()
 
             self.record()
+            self.time_index += 1
 
 
     def activation_in(self, x, random=False):
@@ -165,6 +166,8 @@ class RFNetwork(nn.Module):
       #initialize temporal variables
       self.time_index = 0
 
+
+    '''
     def init_recordings(self, rec_params):
       self.activity_recordings = {}
       for region in rec_params["regions"]:
@@ -188,3 +191,43 @@ class RFNetwork(nn.Module):
           connection_state = getattr(self, connection)
           self.connectivity_recordings[connection] = np.append(self.connectivity_recordings[connection], [deepcopy(connection_state.detach().numpy())], axis=0)
           self.connectivity_recordings_time = np.append(self.connectivity_recordings_time, self.time_index)
+
+
+
+    '''
+    def init_recordings(self, rec_params):
+      self.activity_recordings = {}
+      for region in rec_params["regions"]:
+        self.activity_recordings[region] = [getattr(self, region)]
+      self.activity_recordings_rate = rec_params["rate_activity"]
+      self.activity_recordings_time = []
+      self.connectivity_recordings = {}
+      for connection in rec_params["connections"]:
+        self.connectivity_recordings[connection] = [getattr(self, connection)]
+      self.connectivity_recordings_time = []
+      self.connectivity_recordings_rate = rec_params["rate_connectivity"]
+
+    def record(self):
+      if self.time_index%self.activity_recordings_rate == 0:
+        for region in self.activity_recordings:
+          layer_activity = getattr(self, region)
+          self.activity_recordings[region].append(deepcopy(layer_activity.detach().numpy()))
+          self.activity_recordings_time.append(self.time_index)
+      if self.time_index%self.connectivity_recordings_rate == 0:
+        for connection in self.connectivity_recordings:
+          connection_state = getattr(self, connection)
+          self.connectivity_recordings[connection].append(deepcopy(connection_state.detach().numpy()))
+          self.connectivity_recordings_time.append(self.time_index)
+
+    def recordings_to_np(self):
+      for region in self.activity_recordings:
+        self.activity_recordings[region] = np.array(self.activity_recordings[region])
+      for connection in self.connectivity_recordings:
+        self.connectivity_recordings[connection] = np.array(self.connectivity_recordings[connection])
+
+
+    def reset_recordings(self):
+      for region in self.activity_recordings:
+        self.activity_recordings[region] = np.array(self.activity_recordings[region])
+      for connection in self.connectivity_recordings:
+        self.connectivity_recordings[connection] = np.array(self.connectivity_recordings[connection])
