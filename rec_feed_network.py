@@ -61,7 +61,7 @@ class RFNetwork(nn.Module):
 
 
     def homeostasis_in_in(self):
-      if self.homeostasis == 'none':
+      if self.homeostasis_in_in_type == 'none':
         pass
       elif self.homeostasis_in_in_type == 'bound':
         self.in_in_plastic = torch.clip(self.in_in_plastic, min=None, max=torch.min(self.max_post_in_in. self.max_pre_in_in))
