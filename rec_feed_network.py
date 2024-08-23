@@ -23,7 +23,7 @@ class RFNetwork(nn.Module):
             self.in_ =  self.pattern_complete(self.in_) if self.do_pattern_complete else self.activation_in(self.in_)
             
             self.out_hat =  F.linear(self.in_, self.out_in)
-            self.out = self.activation_out(self.out_hat, random=(not self.forward_input)) 
+            self.out = self.activation_out(self.out_hat, random=(not self.forward_input))
 
 
             self.hebbian_in_in()
@@ -35,7 +35,7 @@ class RFNetwork(nn.Module):
 
 
     def activation_in(self, x, random=False):
-      x = torch.randn(x.shape) if random else x + torch.abs(torch.min(x)/10)*torch.randn(x.shape)
+      x = torch.randn(x.shape) if random else x + (torch.max(x) - torch.min(x))/10*torch.randn(x.shape)
       x_prime = torch.zeros(x.shape)
       x_prime[torch.topk(x, int(self.in_size*self.in_sparsity)).indices] = 1
       return x_prime
@@ -144,8 +144,9 @@ class RFNetwork(nn.Module):
         setattr(self, key, value)
 
       #define subnetworks
-      self.in_ = torch.zeros((self.in_size))
       self.in_hat = torch.zeros((self.in_size))
+      self.in_ = torch.zeros((self.in_size))
+      self.out = torch.zeros((self.out_size))
       self.out = torch.zeros((self.out_size))
 
       #define connectivity
