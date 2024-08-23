@@ -19,14 +19,11 @@ class RFNetwork(nn.Module):
       
         for timestep in range(input.shape[0]):
 
-            self.in_ = input[timestep]
-            if self.pattern_complete:
-                self.in_ = self.pattern_complete(self.in_)
+            self.in_hat = input[timestep]
+            self.in_ =  self.pattern_complete(self.in_) if self.do_pattern_complete else self.activation_in(self.in_)
             
-            if self.forward_input:
-                self.out =  F.linear(self.in_, self.out_in)
-            else:
-                self.out = self.activation_out(radnom=True)
+            self.out_hat =  F.linear(self.in_, self.out_in)
+            self.out = self.activation_out(self.in_, radnom=(not self.forward_input)) 
 
 
             self.hebbian_in_in()
@@ -38,24 +35,24 @@ class RFNetwork(nn.Module):
 
 
     def activation_in(self, x, random=False):
+      x = torch.randn(x.shape) if random else x + torch.abs(torch.min(x)/10)*torch.randn(x.shape)
       x_prime = torch.zeros(x.shape)
       x_prime[torch.topk(x, int(self.in_size*self.in_sparsity)).indices] = 1
       return x_prime
 
     def activation_out(self, x, random=False):
+      x = torch.randn(x.shape) if random else x + torch.abs(torch.min(x)/10)*torch.randn(x.shape)
       x_prime = torch.zeros(x.shape)
       x_prime[torch.topk(x, int(self.out_size*self.out_sparsity)).indices] = 1
       return x_prime
- 
 
     def pattern_complete(self, h_0=None):
       h = self.in_ if h_0 == None else h_0
+      h = self.activation_in(h)
       for iteration in range(self.pattern_complete_iterations):
         h = self.activation_in(F.linear(h, self.in_in))
       return h
     
-
-
     def hebbian_in_in(self):
       self.in_in_plastic += self.lmbda_in_in*torch.outer(self.in_, self.in_)
 
@@ -82,8 +79,6 @@ class RFNetwork(nn.Module):
         )
         # Apply the scaling factors to the connectivity matrix
         self.in_in_plastic = self.in_in_plastic * post_scaling_factors.unsqueeze(1)
-
-
         # Calculate the total pre-connectivity for each neuron
         total_pre_connectivity = torch.sum(self.in_in_plastic, dim=0)
         # Identify neurons that exceed the max pre-connectivity
@@ -96,10 +91,7 @@ class RFNetwork(nn.Module):
         )
         # Apply the scaling factors to the connectivity matrix
         self.in_in_plastic = self.in_in_plastic * pre_scaling_factors
-
-
         self.in_in = self.in_in_fixed + self.in_in_plastic
-
       else:
         print("This type of homeostatic plasticity is not implemented")
 
@@ -124,8 +116,6 @@ class RFNetwork(nn.Module):
         )
         # Apply the scaling factors to the connectivity matrix
         self.out_in_plastic = self.out_in_plastic * post_scaling_factors.unsqueeze(1)
-
-
         # Calculate the total pre-connectivity for each neuron
         total_pre_connectivity = torch.sum(self.out_in_plastic, dim=0)
         # Identify neurons that exceed the max pre-connectivity
@@ -138,10 +128,7 @@ class RFNetwork(nn.Module):
         )
         # Apply the scaling factors to the connectivity matrix
         self.out_in_plastic = self.out_in_plastic * pre_scaling_factors
-
-
         self.out_in = self.out_in_fixed + self.out_in_plastic
-
       else:
         print("This type of homeostatic plasticity is not implemented")
 
