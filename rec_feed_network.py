@@ -13,7 +13,7 @@ class RFNetwork(nn.Module):
 
       super(RFNetwork, self).__init__()
       self.init_network(net_params)
-      #self.init_recordings(rec_params)
+      self.init_recordings(rec_params)
 
     def forward(self, input, test=False):
       
@@ -31,7 +31,7 @@ class RFNetwork(nn.Module):
             self.hebbian_out_in()
             self.homeostasis_out_in()
 
-        #self.record()
+        self.record()
 
 
     def activation_in(self, x, random=False):
