@@ -66,10 +66,10 @@ class RFNetwork(nn.Module):
     def homeostasis_in_in(self):
       if self.homeostasis == 'none':
         pass
-      elif self.homeostasis == 'bound':
+      elif self.homeostasis_in_in_type == 'bound':
         self.in_in_plastic = torch.clip(self.in_in_plastic, min=None, max=torch.min(self.max_post_in_in. self.max_pre_in_in))
         self.in_in = self.in_in_fixed + self.in_in_plastic
-      elif self.homeostasis == 'renorm':
+      elif self.homeostasis_in_in_type == 'renorm':
         # Calculate the total pre-connectivity for each neuron
         total_post_connectivity = torch.sum(self.in_in_plastic, dim=1)
         # Identify neurons that exceed the max pre-connectivity
@@ -106,12 +106,12 @@ class RFNetwork(nn.Module):
 
 
     def homeostasis_out_in(self):
-      if self.homeostasis == 'none':
+      if self.homeostasis_out_in_type == 'none':
         pass
-      elif self.homeostasis == 'bound':
+      elif self.homeostasis_out_in_type == 'bound':
         self.out_in_plastic = torch.clip(self.out_in_plastic, min=None, max=torch.min(self.max_post_out_in. self.max_pre_out_in))
         self.out_in = self.out_in_fixed + self.out_in_plastic
-      elif self.homeostasis == 'renorm':
+      elif self.homeostasis_out_in_type == 'renorm':
         # Calculate the total pre-connectivity for each neuron
         total_post_connectivity = torch.sum(self.out_in_plastic, dim=1)
         # Identify neurons that exceed the max pre-connectivity
