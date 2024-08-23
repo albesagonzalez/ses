@@ -23,7 +23,7 @@ class RFNetwork(nn.Module):
             self.in_ =  self.pattern_complete(self.in_) if self.do_pattern_complete else self.activation_in(self.in_)
             
             self.out_hat =  F.linear(self.in_, self.out_in)
-            self.out = self.activation_out(self.in_, random=(not self.forward_input)) 
+            self.out = self.activation_out(self.out_hat, random=(not self.forward_input)) 
 
 
             self.hebbian_in_in()
@@ -57,7 +57,7 @@ class RFNetwork(nn.Module):
       self.in_in_plastic += self.lmbda_in_in*torch.outer(self.in_, self.in_)
 
     def hebbian_out_in(self):
-      self.out_in_plastic += self.lmbda_in_in*torch.outer(self.out, self.in_)
+      self.out_in_plastic += self.lmbda_out_in*torch.outer(self.out, self.in_)
 
 
     def homeostasis_in_in(self):
