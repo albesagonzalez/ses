@@ -22,7 +22,7 @@ class RFNetwork(nn.Module):
         for timestep in range(input.shape[0]):
 
             self.in_hat = input[timestep]
-            self.in_ =  self.pattern_complete(self.in_hat) if self.do_pattern_complete else self.activation_in(self.in)
+            self.in_ =  self.pattern_complete(self.in_hat) if self.do_pattern_complete else self.activation_in(self.in_)
             
             self.out_hat =  F.linear(self.in_, self.out_in)
             self.out = self.activation_out(self.out_hat, random=(not self.forward_input))
