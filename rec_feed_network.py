@@ -21,7 +21,7 @@ class RFNetwork(nn.Module):
 
             self.in_ = input[timestep]
             if self.pattern_complete:
-                self.in_ = self.pattern_complete_in(self.in_)
+                self.in_ = self.pattern_complete(self.in_)
             
             if self.forward_input:
                 self.out =  F.linear(self.in_, self.out_in)
