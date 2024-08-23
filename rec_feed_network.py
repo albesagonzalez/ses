@@ -167,7 +167,7 @@ class RFNetwork(nn.Module):
       self.in_in_plastic = torch.zeros((self.in_size, self.in_size))
       self.in_in = self.in_in_fixed + self.in_in_plastic
 
-      self.out_in_sparsity_mask = torch.rand((self.in_size, self.in_size)) < self.out_in_sparsity
+      self.out_in_sparsity_mask = torch.rand((self.out_size, self.in_size)) < self.out_in_sparsity
       self.out_in_fixed = nn.Linear(self.in_size, self.out_size, bias=False).weight.clone().detach()*self.out_in_g*self.out_in_sparsity_mask
       self.out_in_plastic = torch.zeros((self.out_size, self.in_size))
       self.out_in = self.out_in_fixed + self.out_in_plastic     
