@@ -15,7 +15,7 @@ class RFNetwork(nn.Module):
       self.init_network(net_params)
       self.init_recordings(rec_params)
 
-    def forward(self, inputs, test=False):
+    def forward(self, input, test=False):
       
         for timestep in range(input.shape[0]):
 
