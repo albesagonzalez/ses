@@ -8,8 +8,6 @@ from copy import deepcopy
 
 from collections import OrderedDict
 
-import matplotlib.pyplot as plt
-
 class RFNetwork(nn.Module):
     def __init__(self, net_params, rec_params):
 
@@ -27,11 +25,12 @@ class RFNetwork(nn.Module):
             self.out_hat =  F.linear(self.in_, self.out_in)
             self.out = self.activation_out(self.out_hat, random=(not self.forward_input))
 
-
-            self.hebbian_in_in()
-            self.homeostasis_in_in()
-            self.hebbian_out_in()
-            self.homeostasis_out_in()
+            if self.learn_rec:
+              self.hebbian_in_in()
+              self.homeostasis_in_in()
+            if self.learn_learn_ff:
+              self.hebbian_out_in()
+              self.homeostasis_out_in()
 
             self.record()
             self.time_index += 1
