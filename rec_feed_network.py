@@ -28,7 +28,7 @@ class RFNetwork(nn.Module):
             if self.learn_rec:
               self.hebbian_in_in()
               self.homeostasis_in_in()
-            if self.learn_learn_ff:
+            if self.learn_ff:
               self.hebbian_out_in()
               self.homeostasis_out_in()
 
