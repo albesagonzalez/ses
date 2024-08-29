@@ -8,6 +8,30 @@ from copy import deepcopy
 
 from collections import OrderedDict
 
+
+# Image size
+width, height = 28, 28
+
+# Define the pixel grid
+x, y = np.meshgrid(np.arange(width), np.arange(height))
+
+# Flatten the grid to create (784, 2) coordinates
+coords = np.stack([x.ravel(), y.ravel()], axis=1)
+
+# Compute the pairwise Euclidean distances
+distances = np.sqrt(np.sum((coords[:, np.newaxis, :] - coords[np.newaxis, :, :]) ** 2, axis=2))
+
+# Define radius r
+r = 10  # You can choose any appropriate value for r
+
+# Compute alpha using the equation alpha = -ln(0.01) / r
+alpha = -np.log(0.01) / r
+
+# Apply the exponential decay function
+distance_tensor = np.exp(-alpha * distances)
+
+# The distance_tensor now has a shape of (784, 784)
+
 class RFNetwork(nn.Module):
     def __init__(self, net_params, rec_params):
 
@@ -56,7 +80,7 @@ class RFNetwork(nn.Module):
       return h
     
     def hebbian_in_in(self):
-      self.in_in_plastic += self.lmbda_in_in*torch.outer(self.in_, self.in_)
+      self.in_in_plastic += self.lmbda_in_in*torch.outer(self.in_, self.in_)*distance_tensor
 
     def hebbian_out_in(self):
       self.out_in_plastic += self.lmbda_out_in*torch.outer(self.out, self.in_)
