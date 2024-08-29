@@ -40,6 +40,7 @@ class RFNetwork(nn.Module):
       self.init_recordings(rec_params)
 
     def forward(self, input, test=False):
+        output = []
       
         for timestep in range(input.shape[0]):
 
@@ -58,6 +59,12 @@ class RFNetwork(nn.Module):
 
             self.record()
             self.time_index += 1
+
+            if test:
+              output.append(self.out)
+        
+        if test:
+          return torch.tensor(output)
 
 
     def sleep(self, num_timesteps):
