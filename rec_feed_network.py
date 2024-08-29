@@ -22,7 +22,7 @@ coords = np.stack([x.ravel(), y.ravel()], axis=1)
 distances = np.sqrt(np.sum((coords[:, np.newaxis, :] - coords[np.newaxis, :, :]) ** 2, axis=2))
 
 # Define radius r
-r = 10  # You can choose any appropriate value for r
+r = 8  # You can choose any appropriate value for r
 
 # Compute alpha using the equation alpha = -ln(0.01) / r
 alpha = -np.log(0.01) / r
