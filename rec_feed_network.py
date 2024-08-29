@@ -64,7 +64,7 @@ class RFNetwork(nn.Module):
               output.append(self.out)
         
         if test:
-          return torch.tensor(output)
+          return output
 
 
     def sleep(self, num_timesteps):
