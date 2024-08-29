@@ -60,6 +60,21 @@ class RFNetwork(nn.Module):
             self.time_index += 1
 
 
+    def sleep(self, num_timesteps):
+      self.in_sparsity = self.in_sparsity*0.8
+      for time in range(num_timesteps):
+        x = torch.randn(self.in_.shape)
+        self.in_ = self.pattern_complete(x)
+        self.out_hat =  F.linear(self.in_, self.out_in)
+        self.out = self.activation_out(self.out_hat, random=(not self.forward_input))
+        self.hebbian_out_in()
+        self.homeostasis_out_in()
+        self.record()
+      self.in_sparsity = self.in_sparsity/0.8
+
+
+
+
     def activation_in(self, x, random=False):
       x = torch.randn(x.shape) if random else x + (1e-10 + torch.max(x) - torch.min(x))/10*torch.randn(x.shape)
       x_prime = torch.zeros(x.shape)
