@@ -69,6 +69,7 @@ class RFNetwork(nn.Module):
 
     def sleep(self, num_timesteps):
       self.in_sparsity = self.in_sparsity*0.3
+      self.out_sparsity = self.out_sparsity*0.3
       for time in range(num_timesteps):
         x = torch.randn(self.in_.shape)
         self.in_ = self.pattern_complete(x)
@@ -78,6 +79,7 @@ class RFNetwork(nn.Module):
         self.homeostasis_out_in()
         self.record()
       self.in_sparsity = self.in_sparsity/0.3
+      self.out_sparsity = self.out_sparsity/0.3
 
 
 
