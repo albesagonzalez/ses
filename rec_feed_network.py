@@ -96,9 +96,10 @@ class RFNetwork(nn.Module):
       x_prime[torch.topk(x, int(self.out_size*self.out_sparsity)).indices] = 1
       return x_prime
 
-    def pattern_complete(self, h_0=None):
+    def pattern_complete(self, h_0=None, num_iterations=None):
       h = self.in_ if h_0 == None else h_0
       h = self.activation_in(h)
+      num_iterations = self.pattern_complete_iterations if num_iterations == None else num_iterations
       for iteration in range(self.pattern_complete_iterations):
         h = self.activation_in(F.linear(h, self.in_in))
       return h
