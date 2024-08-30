@@ -101,7 +101,8 @@ class RFNetwork(nn.Module):
       return h
     
     def hebbian_in_in(self):
-      self.in_in_plastic += self.lmbda_in_in*torch.outer(self.in_, self.in_)*distance_tensor
+      #self.in_in_plastic += self.lmbda_in_in*torch.outer(self.in_, self.in_)*distance_tensor
+      self.in_in_plastic += self.lmbda_in_in*torch.outer(self.in_, self.in_)
 
     def hebbian_out_in(self):
       self.out_in_plastic += self.lmbda_out_in*torch.outer(self.out, self.in_)
