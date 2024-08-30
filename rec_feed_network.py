@@ -8,7 +8,7 @@ from copy import deepcopy
 
 from collections import OrderedDict
 
-
+'''
 # Image size
 width, height = 28, 28
 
@@ -31,7 +31,7 @@ alpha = -np.log(0.01) / r
 distance_tensor = np.exp(-alpha * distances)
 
 # The distance_tensor now has a shape of (784, 784)
-
+'''
 class RFNetwork(nn.Module):
     def __init__(self, net_params, rec_params):
 
