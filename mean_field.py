@@ -13,7 +13,7 @@ def get_mean_field_terms(t, post_i, pre_j, sp, p):
         fp_w = None
 
     elif  (t < T_ax_free) and (t > T_de_free):
-        T_ax_cond = (sp["N_post_act"]*p["j"][pre_j]*t - e_de_to_ax[post_i]*p["i"][post_i])/(t - T_de_free) + T_de_free
+        #T_ax_cond = (sp["N_post_act"]*p["j"][pre_j]*t - e_de_to_ax[post_i]*p["i"][post_i])/(t - T_de_free) + T_de_free
         if (t < T_ax_cond):
             S_ax = sp["N_post_act"]*p["j"][pre_j]*t - e_de_to_ax[post_i]*p["i"][post_i])*(t - T_de_free)
             S_de = sp["w_de_max"]

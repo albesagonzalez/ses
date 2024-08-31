@@ -66,6 +66,7 @@ class LatentSpace():
       self.index_to_label = list(itertools.product(*[[i for i in range(dim)] for dim in self.dims]))
       self.label_to_index = {label: index for index, label in enumerate(self.index_to_label)}
       self.label_to_neurons = OrderedDict({label: self.get_neurons_from_label(label) for label in self.index_to_label})
+      print(prob_list)
       self.label_to_probs = OrderedDict({label: prob for label, prob in zip(self.index_to_label, prob_list)})
       self.sub_index_to_marginal = [self.get_marginal(latent, sub) for (latent, sub) in self.sub_index_to_latent_sub]
 
