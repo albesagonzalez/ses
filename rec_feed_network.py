@@ -99,9 +99,9 @@ class RFNetwork(nn.Module):
       h = self.activation_in(h)
       num_iterations = self.pattern_complete_iterations if num_iterations == None else num_iterations
       for iteration in range(self.pattern_complete_iterations):
-        h = self.activation_in(F.linear(h, self.in_in))
+        h = self.activation_in(F.linear(h,self.depression_mask*self.in_in))
         if depress_synapses:
-          depression_mask = (1 - self.depression_beta)*depression_mask - self.depression_beta*self.depression_amplitude*self.torch.outer(self.in_, self.in_)
+          depression_mask = (1 - self.depression_beta)*depression_mask + self.depression_beta*self.depression_amplitude*(1 - self.torch.outer(self.in_, self.in_))
       return h
     
     def hebbian_in_in(self):
