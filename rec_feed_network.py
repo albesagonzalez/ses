@@ -86,7 +86,7 @@ class RFNetwork(nn.Module):
       for region_index, region in enumerate(self.in_regions):
         x_prime = torch.zeros(len(region))
         x_prime[torch.topk(x, int(len(region)*self.in_sparsity[region_index])).indices] = 1
-        x_prime[region] 
+        final_x[region]  = x_prime
       return x_prime
 
     def activation_out(self, x, random=False):
