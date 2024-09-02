@@ -81,7 +81,7 @@ class RFNetwork(nn.Module):
 
 
     def activation_in(self, x, random=False):
-      x = torch.randn(x.shape) if random else x + (1e-10 + torch.max(x) - torch.min(x))/10*torch.randn(x.shape)
+      x = torch.randn(x.shape) if random else x + (1e-10 + torch.max(x) - torch.min(x))/100*torch.randn(x.shape)
       x_prime = torch.zeros(x.shape)
       x_prime[torch.topk(x, int(self.in_size*self.in_sparsity)).indices] = 1
       return x_prime
@@ -98,7 +98,7 @@ class RFNetwork(nn.Module):
       h = self.in_ if h_0 == None else h_0
       h = self.activation_in(h)
       num_iterations = self.pattern_complete_iterations if num_iterations == None else num_iterations
-      for iteration in range(self.pattern_complete_iterations):
+      for iteration in num_iterations:
         h = self.activation_in(F.linear(h,self.depression_mask*self.in_in))
         if depress_synapses:
           depression_mask = (1 - self.depression_beta)*depression_mask + self.depression_beta*self.depression_amplitude*(1 - self.torch.outer(self.in_, self.in_))
