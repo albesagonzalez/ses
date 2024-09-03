@@ -268,7 +268,7 @@ class RFNetwork(nn.Module):
         self.connectivity_recordings[connection] = np.array(self.connectivity_recordings[connection])
 
 
-    def init_distance_filter(radius):
+    def init_distance_filter(self, radius):
       # Image size
       width, height = 28, 28
 
