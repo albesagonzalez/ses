@@ -281,9 +281,6 @@ class RFNetwork(nn.Module):
       # Compute the pairwise Euclidean distances
       distances = np.sqrt(np.sum((coords[:, np.newaxis, :] - coords[np.newaxis, :, :]) ** 2, axis=2))
 
-      # Define radius r
-      radius = 8  # You can choose any appropriate value for r
-
       # Compute alpha using the equation alpha = -ln(0.01) / r
       alpha = -np.log(0.01) / r
 
