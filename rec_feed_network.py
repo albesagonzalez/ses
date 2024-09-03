@@ -8,30 +8,6 @@ from copy import deepcopy
 
 from collections import OrderedDict
 
-'''
-# Image size
-width, height = 28, 28
-
-# Define the pixel grid
-x, y = np.meshgrid(np.arange(width), np.arange(height))
-
-# Flatten the grid to create (784, 2) coordinates
-coords = np.stack([x.ravel(), y.ravel()], axis=1)
-
-# Compute the pairwise Euclidean distances
-distances = np.sqrt(np.sum((coords[:, np.newaxis, :] - coords[np.newaxis, :, :]) ** 2, axis=2))
-
-# Define radius r
-r = 8  # You can choose any appropriate value for r
-
-# Compute alpha using the equation alpha = -ln(0.01) / r
-alpha = -np.log(0.01) / r
-
-# Apply the exponential decay function
-distance_tensor = np.exp(-alpha * distances)
-
-# The distance_tensor now has a shape of (784, 784)
-'''
 class RFNetwork(nn.Module):
     def __init__(self, net_params, rec_params):
 
@@ -113,8 +89,8 @@ class RFNetwork(nn.Module):
       return h
     
     def hebbian_in_in(self):
-      #self.in_in_plastic += self.lmbda_in_in*torch.outer(self.in_, self.in_)*distance_tensor
-      self.in_in_plastic += self.lmbda_in_in*torch.outer(self.in_, self.in_)
+      self.in_in_plastic += self.lmbda_in_in*torch.outer(self.in_, self.in_)*self.hebb_distance_filter
+      #self.in_in_plastic += self.lmbda_in_in*torch.outer(self.in_, self.in_)
 
     def hebbian_out_in(self):
       self.out_in_plastic += self.lmbda_out_in*torch.outer(self.out, self.in_)
@@ -218,7 +194,9 @@ class RFNetwork(nn.Module):
       self.out_in_sparsity_mask = torch.rand((self.out_size, self.in_size)) < self.out_in_sparsity
       self.out_in_fixed = nn.Linear(self.in_size, self.out_size, bias=False).weight.clone().detach()*self.out_in_g*self.out_in_sparsity_mask
       self.out_in_plastic = torch.zeros((self.out_size, self.in_size))
-      self.out_in = self.out_in_fixed + self.out_in_plastic     
+      self.out_in = self.out_in_fixed + self.out_in_plastic   
+
+      self.hebb_d_filter = torch.ones(self.in_in.shape) if self.hebb_distance_filter == None else self.init_distance_filter(self.hebb_distance_filter)
 
       #initialize temporal variables
       self.time_index = 0
@@ -288,3 +266,30 @@ class RFNetwork(nn.Module):
         self.activity_recordings[region] = np.array(self.activity_recordings[region])
       for connection in self.connectivity_recordings:
         self.connectivity_recordings[connection] = np.array(self.connectivity_recordings[connection])
+
+
+    def init_distance_filter(radius):
+      # Image size
+      width, height = 28, 28
+
+      # Define the pixel grid
+      x, y = np.meshgrid(np.arange(width), np.arange(height))
+
+      # Flatten the grid to create (784, 2) coordinates
+      coords = np.stack([x.ravel(), y.ravel()], axis=1)
+
+      # Compute the pairwise Euclidean distances
+      distances = np.sqrt(np.sum((coords[:, np.newaxis, :] - coords[np.newaxis, :, :]) ** 2, axis=2))
+
+      # Define radius r
+      radius = 8  # You can choose any appropriate value for r
+
+      # Compute alpha using the equation alpha = -ln(0.01) / r
+      alpha = -np.log(0.01) / r
+
+      # Apply the exponential decay function
+      distance_tensor = np.exp(-alpha * distances)
+
+      # The distance_tensor now has a shape of (784, 784)
+
+      return distance_tensor
