@@ -96,7 +96,7 @@ class RFNetwork(nn.Module):
       x_prime[torch.topk(x, int(self.out_size*self.out_sparsity)).indices] = 1
       return x_prime
 
-    def pattern_complete(h_0=None, num_iterations=None, depress_synapses=False):
+    def pattern_complete(self, h_0=None, num_iterations=None, depress_synapses=False):
 
       input_mask = torch.outer(h_0, h_0)
       depression_mask = torch.ones_like(self.in_in)
