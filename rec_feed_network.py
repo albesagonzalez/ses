@@ -282,7 +282,7 @@ class RFNetwork(nn.Module):
       distances = np.sqrt(np.sum((coords[:, np.newaxis, :] - coords[np.newaxis, :, :]) ** 2, axis=2))
 
       # Compute alpha using the equation alpha = -ln(0.01) / r
-      alpha = -np.log(0.01) / r
+      alpha = -np.log(0.01) / radius
 
       # Apply the exponential decay function
       distance_tensor = np.exp(-alpha * distances)
