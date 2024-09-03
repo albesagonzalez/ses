@@ -86,7 +86,6 @@ class RFNetwork(nn.Module):
       for region_index, region in enumerate(self.in_regions):
         x_prime = torch.zeros(len(region))
         top_indices = torch.topk(x[region], int(len(region)*self.in_sparsity[region_index])).indices
-        print(top_indices.shape)
         x_prime[top_indices] = 1
         final_x[region]  = x_prime
       return final_x
@@ -97,16 +96,20 @@ class RFNetwork(nn.Module):
       x_prime[torch.topk(x, int(self.out_size*self.out_sparsity)).indices] = 1
       return x_prime
 
-    def pattern_complete(self, h_0=None, num_iterations=None, depress_synapses=False):
+    def pattern_complete(h_0=None, num_iterations=None, depress_synapses=False):
 
-      self.aux_synapses = self.in_in.clone()
+      input_mask = torch.outer(h_0, h_0)
+      depression_mask = torch.ones_like(self.in_in)
+      aux_synapses = self.in_in.clone()
       h = self.in_ if h_0 == None else h_0
-      h = self.activation_in(h)
+      h = activation_in(h)
       num_iterations = self.pattern_complete_iterations if num_iterations == None else num_iterations
-      for iteration in num_iterations:
-        h = self.activation_in(F.linear(h,self.depression_mask*self.in_in))
+      for iteration in range(num_iterations):
+        h = activation_in(F.linear(h, depression_mask*aux_synapses))
+        #h = self.activation_in(F.linear(h, self.in_in))
         if depress_synapses:
-          depression_mask = (1 - self.depression_beta)*depression_mask + self.depression_beta*self.depression_amplitude*(1 - self.torch.outer(self.in_, self.in_))
+          delta_depression = self.depression_amplitude*torch.outer(h, h)
+          depression_mask[~input_mask.bool()] = ((1 - self.depression_beta)*depression_mask - delta_depression)[~input_mask.bool()]
       return h
     
     def hebbian_in_in(self):
