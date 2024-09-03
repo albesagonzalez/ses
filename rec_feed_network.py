@@ -89,7 +89,7 @@ class RFNetwork(nn.Module):
       return h
     
     def hebbian_in_in(self):
-      self.in_in_plastic += self.lmbda_in_in*torch.outer(self.in_, self.in_)*self.hebb_distance_filter
+      self.in_in_plastic += self.lmbda_in_in*torch.outer(self.in_, self.in_)*self.hebb_dist_filter
       #self.in_in_plastic += self.lmbda_in_in*torch.outer(self.in_, self.in_)
 
     def hebbian_out_in(self):
@@ -196,7 +196,7 @@ class RFNetwork(nn.Module):
       self.out_in_plastic = torch.zeros((self.out_size, self.in_size))
       self.out_in = self.out_in_fixed + self.out_in_plastic   
 
-      self.hebb_d_filter = torch.ones(self.in_in.shape) if self.hebb_distance_filter == None else self.init_distance_filter(self.hebb_distance_filter)
+      self.hebb_dist_filter = torch.ones(self.in_in.shape) if self.hebb_distance_filter == None else self.init_distance_filter(self.hebb_distance_filter)
 
       #initialize temporal variables
       self.time_index = 0
