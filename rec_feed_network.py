@@ -97,24 +97,7 @@ class RFNetwork(nn.Module):
 
 
     def homeostasis_in_in(self):
-      if self.homeostasis_in_in_type == 'none':
-        pass
-      elif self.homeostasis_in_in_type == 'bound':
-        self.in_in_plastic = torch.clip(self.in_in_plastic, min=None, max=torch.min(self.max_post_in_in. self.max_pre_in_in))
-        self.in_in = self.in_in_fixed + self.in_in_plastic
-      elif self.homeostasis_in_in_type == 'renorm':
-        # Calculate the total pre-connectivity for each neuron
-        total_post_connectivity = torch.sum(self.in_in_plastic, dim=1)
-        # Identify neurons that exceed the max pre-connectivity
-        post_exceeding_mask = total_post_connectivity > self.max_post_in_in
-        # Scale the connectivities of the exceeding neurons
-        post_scaling_factors = torch.where(
-            post_exceeding_mask,
-            self.max_post_in_in / total_post_connectivity,
-            torch.ones_like(total_post_connectivity)
-        )
-        # Apply the scaling factors to the connectivity matrix
-        self.in_in_plastic = self.in_in_plastic * post_scaling_factors.unsqueeze(1)
+      def homeostasis_in_in_pre():
         # Calculate the total pre-connectivity for each neuron
         total_pre_connectivity = torch.sum(self.in_in_plastic, dim=0)
         # Identify neurons that exceed the max pre-connectivity
@@ -128,30 +111,41 @@ class RFNetwork(nn.Module):
         # Apply the scaling factors to the connectivity matrix
         self.in_in_plastic = self.in_in_plastic * pre_scaling_factors
         self.in_in = self.in_in_fixed + self.in_in_plastic
+      
+      def homeostasis_in_in_post():
+        # Calculate the total pre-connectivity for each neuron
+        total_post_connectivity = torch.sum(self.in_in_plastic, dim=1)
+        # Identify neurons that exceed the max pre-connectivity
+        post_exceeding_mask = total_post_connectivity > self.max_post_in_in
+        # Scale the connectivities of the exceeding neurons
+        post_scaling_factors = torch.where(
+            post_exceeding_mask,
+            self.max_post_in_in / total_post_connectivity,
+            torch.ones_like(total_post_connectivity)
+        )
+        # Apply the scaling factors to the connectivity matrix
+        self.in_in_plastic = self.in_in_plastic * post_scaling_factors.unsqueeze(1)
+        self.in_in = self.in_in_fixed + self.in_in_plastic
+
+      if self.homeostasis_in_in_type == 'none':
+        pass
+      elif self.homeostasis_in_in_type == 'bound':
+        self.in_in_plastic = torch.clip(self.in_in_plastic, min=None, max=torch.min(self.max_post_in_in. self.max_pre_in_in))
+        self.in_in = self.in_in_fixed + self.in_in_plastic
+      elif self.homeostasis_in_in_type == 'renorm':
+        if self.time_index%2 == 0:
+          homeostasis_in_in_pre()
+        else:
+          homeostasis_in_in_post()
+
+
       else:
         print("This type of homeostatic plasticity is not implemented")
 
 
 
     def homeostasis_out_in(self):
-      if self.homeostasis_out_in_type == 'none':
-        pass
-      elif self.homeostasis_out_in_type == 'bound':
-        self.out_in_plastic = torch.clip(self.out_in_plastic, min=None, max=torch.min(self.max_post_out_in. self.max_pre_out_in))
-        self.out_in = self.out_in_fixed + self.out_in_plastic
-      elif self.homeostasis_out_in_type == 'renorm':
-        # Calculate the total pre-connectivity for each neuron
-        total_post_connectivity = torch.sum(self.out_in_plastic, dim=1)
-        # Identify neurons that exceed the max pre-connectivity
-        post_exceeding_mask = total_post_connectivity > self.max_post_out_in
-        # Scale the connectivities of the exceeding neurons
-        post_scaling_factors = torch.where(
-            post_exceeding_mask,
-            self.max_post_out_in / total_post_connectivity,
-            torch.ones_like(total_post_connectivity)
-        )
-        # Apply the scaling factors to the connectivity matrix
-        self.out_in_plastic = self.out_in_plastic * post_scaling_factors.unsqueeze(1)
+      def homeostasis_out_in_pre():
         # Calculate the total pre-connectivity for each neuron
         total_pre_connectivity = torch.sum(self.out_in_plastic, dim=0)
         # Identify neurons that exceed the max pre-connectivity
@@ -165,6 +159,36 @@ class RFNetwork(nn.Module):
         # Apply the scaling factors to the connectivity matrix
         self.out_in_plastic = self.out_in_plastic * pre_scaling_factors
         self.out_in = self.out_in_fixed + self.out_in_plastic
+      
+      def homeostasis_out_in_post():
+        # Calculate the total pre-connectivity for each neuron
+        total_post_connectivity = torch.sum(self.out_in_plastic, dim=1)
+        # Identify neurons that exceed the max pre-connectivity
+        post_exceeding_mask = total_post_connectivity > self.max_post_out_in
+        # Scale the connectivities of the exceeding neurons
+        post_scaling_factors = torch.where(
+            post_exceeding_mask,
+            self.max_post_out_in / total_post_connectivity,
+            torch.ones_like(total_post_connectivity)
+        )
+        # Apply the scaling factors to the connectivity matrix
+        self.out_in_plastic = self.out_in_plastic * post_scaling_factors.unsqueeze(1)
+        self.out_in = self.out_in_fixed + self.out_in_plastic
+
+
+      if self.homeostasis_out_in_type == 'none':
+        pass
+      elif self.homeostasis_out_in_type == 'bound':
+        self.out_in_plastic = torch.clip(self.out_in_plastic, min=None, max=torch.min(self.max_post_out_in. self.max_pre_out_in))
+        self.out_in = self.out_in_fixed + self.out_in_plastic
+      elif self.homeostasis_out_in_type == 'renorm':
+        if self.time_index%2 == 0:
+          homeostasis_out_in_pre()
+        else:
+          homeostasis_out_in_post()
+
+
+
       else:
         print("This type of homeostatic plasticity is not implemented")
 
