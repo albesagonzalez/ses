@@ -102,7 +102,6 @@ class RFNetwork(nn.Module):
         total_pre_connectivity = torch.sum(self.in_in_plastic, dim=0)
         # Identify neurons that exceed the max pre-connectivity
         pre_exceeding_mask = total_pre_connectivity > self.max_pre_in_in
-        print("extra pre", total_pre_connectivity - self.max_pre_in_in)
         # Scale the connectivities of the exceeding neurons
         pre_scaling_factors = torch.where(
             pre_exceeding_mask,
@@ -116,7 +115,6 @@ class RFNetwork(nn.Module):
       def homeostasis_in_in_post():
         # Calculate the total pre-connectivity for each neuron
         total_post_connectivity = torch.sum(self.in_in_plastic, dim=1)
-        print("extra post", total_post_connectivity - self.max_pre_in_in)
         # Identify neurons that exceed the max pre-connectivity
         post_exceeding_mask = total_post_connectivity > self.max_post_in_in
         # Scale the connectivities of the exceeding neurons
@@ -126,14 +124,20 @@ class RFNetwork(nn.Module):
             torch.ones_like(total_post_connectivity)
         )
         # Apply the scaling factors to the connectivity matrix
-        self.in_in_plastic = self.in_in_plastic * post_scaling_factors.unsqueeze(1)
+        #self.in_in_plastic = self.in_in_plastic * post_scaling_factors.unsqueeze(1)
+        self.in_in_plastic = self.in_in_plastic * post_scaling_factors
         self.in_in = self.in_in_fixed + self.in_in_plastic
 
 
       def homeostasis_in_in_mixed():
         # Calculate the total pre-connectivity for each neuron
         total_post_connectivity = torch.sum(self.in_in_plastic, dim=1)
-        total_pre_connectivity = torch.sum(self.in_in_plastic, dim=1)
+        total_pre_connectivity = torch.sum(self.in_in_plastic, dim=0)
+
+        pre_exceeding_mask = total_pre_connectivity > self.max_pre_in_in
+        post_exceeding_mask = total_post_connectivity > self.max_post_in_in
+        pre_post_exceeding_mask = torch.outer(pre_exceeding_mask, post_exceeding_mask)
+
         total_av_connectivity = (total_post_connectivity + total_pre_connectivity)/2
         total_delta = total_av_connectivity - self.max_post_in_in
         self.in_in_plastic = self.in_in_plastic*self.max_post_in_in/total_av_connectivity
