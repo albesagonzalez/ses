@@ -133,14 +133,35 @@ class RFNetwork(nn.Module):
         # Calculate the total pre-connectivity for each neuron
         total_post_connectivity = torch.sum(self.in_in_plastic, dim=1)
         total_pre_connectivity = torch.sum(self.in_in_plastic, dim=0)
+        total_av_connectivity = (total_pre_connectivity + total_post_connectivity.unsqueeze(1))/2
+        max_mixed = (self.max_pre_in_in + self.max_post_in_in)/2
+
 
         pre_exceeding_mask = total_pre_connectivity > self.max_pre_in_in
         post_exceeding_mask = total_post_connectivity > self.max_post_in_in
-        pre_post_exceeding_mask = torch.outer(pre_exceeding_mask, post_exceeding_mask)
+        pre_post_exceeding_mask = pre_exceeding_mask.unsqueeze(0) & post_exceeding_mask.unsqueeze(1)
 
-        total_av_connectivity = (total_post_connectivity + total_pre_connectivity)/2
-        total_delta = total_av_connectivity - self.max_post_in_in
-        self.in_in_plastic = self.in_in_plastic*self.max_post_in_in/total_av_connectivity
+
+
+        pre_scaling_factors = torch.where(
+            pre_exceeding_mask & ~pre_post_exceeding_mask,
+            self.max_pre_in_in / total_pre_connectivity,
+            torch.ones_like(self.plastic_in_in)
+        )
+
+        post_scaling_factors = torch.where(
+            post_exceeding_mask.unsqueeze(1) & ~pre_post_exceeding_mask,
+            self.max_pre_in_in / total_pre_connectivity,
+            torch.ones_like(self.plastic_in_in)
+        )
+
+        pre_post_scaling_factors = torch.where(
+            pre_post_exceeding_mask,
+            self.max_pre_in_in / total_av_connectivity,
+            torch.ones_like(total_post_connectivity)
+        )
+
+        self.in_in_plastic = self.in_in_plastic*pre_scaling_factors*post_scaling_factors*pre_post_scaling_factors
         self.in_in = self.in_in_fixed + self.in_in_plastic
 
 
@@ -150,15 +171,15 @@ class RFNetwork(nn.Module):
         self.in_in_plastic = torch.clip(self.in_in_plastic, min=None, max=torch.min(self.max_post_in_in. self.max_pre_in_in))
         self.in_in = self.in_in_fixed + self.in_in_plastic
       elif self.homeostasis_in_in_type == 'renorm':
-        #homeostasis_in_in_mixed()
-        #'''
+        homeostasis_in_in_mixed()
+        '''
         if self.time_index%2 == 0:
           homeostasis_in_in_pre()
           homeostasis_in_in_post()
         else:
           homeostasis_in_in_post()
           homeostasis_in_in_pre()
-        #'''
+        '''
 
       else:
         print("This type of homeostatic plasticity is not implemented")
