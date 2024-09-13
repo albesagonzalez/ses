@@ -102,6 +102,7 @@ class RFNetwork(nn.Module):
         total_pre_connectivity = torch.sum(self.in_in_plastic, dim=0)
         # Identify neurons that exceed the max pre-connectivity
         pre_exceeding_mask = total_pre_connectivity > self.max_pre_in_in
+        print("extra pre", total_pre_connectivity - self.max_pre_in_in)
         # Scale the connectivities of the exceeding neurons
         pre_scaling_factors = torch.where(
             pre_exceeding_mask,
@@ -115,6 +116,7 @@ class RFNetwork(nn.Module):
       def homeostasis_in_in_post():
         # Calculate the total pre-connectivity for each neuron
         total_post_connectivity = torch.sum(self.in_in_plastic, dim=1)
+        print("extra post", total_post_connectivity - self.max_pre_in_in)
         # Identify neurons that exceed the max pre-connectivity
         post_exceeding_mask = total_post_connectivity > self.max_post_in_in
         # Scale the connectivities of the exceeding neurons
