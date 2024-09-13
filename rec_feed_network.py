@@ -130,18 +130,21 @@ class RFNetwork(nn.Module):
 
 
       def homeostasis_in_in_mixed():
-        # Calculate the total pre-connectivity for each neuron
         total_post_connectivity = torch.sum(self.in_in_plastic, dim=1)
         total_pre_connectivity = torch.sum(self.in_in_plastic, dim=0)
         total_av_connectivity = (total_pre_connectivity + total_post_connectivity.unsqueeze(1))/2
         max_mixed = (self.max_pre_in_in + self.max_post_in_in)/2
 
+        pre_exceeding_mask = torch.tensor((total_pre_connectivity > self.max_pre_in_in)).unsqueeze(0).repeat(self.in_size, 1)
+        post_exceeding_mask = torch.tensor((total_post_connectivity > self.max_post_in_in)).unsqueeze(1).repeat(1, self.in_size)
+        pre_post_exceeding_mask = pre_exceeding_mask & post_exceeding_mask
 
-        pre_exceeding_mask = total_pre_connectivity > self.max_pre_in_in
-        post_exceeding_mask = total_post_connectivity > self.max_post_in_in
-        pre_post_exceeding_mask = pre_exceeding_mask.unsqueeze(0) & post_exceeding_mask.unsqueeze(1)
 
-
+        post_scaling_factors = torch.where(
+            post_exceeding_mask & ~pre_post_exceeding_mask,
+            self.max_post_in_in / total_post_connectivity,
+            torch.ones_like(self.in_in_plastic)
+        )
 
         pre_scaling_factors = torch.where(
             pre_exceeding_mask & ~pre_post_exceeding_mask,
@@ -149,21 +152,11 @@ class RFNetwork(nn.Module):
             torch.ones_like(self.in_in_plastic)
         )
 
-        post_scaling_factors = torch.where(
-            post_exceeding_mask.unsqueeze(1) & ~pre_post_exceeding_mask,
-            self.max_post_in_in / total_post_connectivity,
-            torch.ones_like(self.in_in_plastic)
-        )
-
         pre_post_scaling_factors = torch.where(
             pre_post_exceeding_mask,
-            max_mixed / total_av_connectivity,
+            max_mixed/ total_av_connectivity,
             torch.ones_like(self.in_in_plastic)
         )
-        
-        maxim = torch.tensor([post_scaling_factors.max(), pre_post_scaling_factors.max(), post_scaling_factors.max()]).max()
-        if maxim > 1:
-         print([post_scaling_factors.max(), pre_post_scaling_factors.max(), post_scaling_factors.max()])
         self.in_in_plastic = self.in_in_plastic*pre_scaling_factors*post_scaling_factors*pre_post_scaling_factors
         self.in_in = self.in_in_fixed + self.in_in_plastic
 
