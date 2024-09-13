@@ -161,8 +161,9 @@ class RFNetwork(nn.Module):
             torch.ones_like(self.in_in_plastic)
         )
         
-        maxim =  torch.tensor(post_scaling_factors.max(), pre_post_scaling_factors.max(), post_scaling_factors.max()).max()
-        print(maxim)
+        maxim = torch.tensor([post_scaling_factors.max(), pre_post_scaling_factors.max(), post_scaling_factors.max()]).max()
+        if maxim > 1:
+         print([post_scaling_factors.max(), pre_post_scaling_factors.max(), post_scaling_factors.max()])
         self.in_in_plastic = self.in_in_plastic*pre_scaling_factors*post_scaling_factors*pre_post_scaling_factors
         self.in_in = self.in_in_fixed + self.in_in_plastic
 
