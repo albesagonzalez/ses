@@ -163,7 +163,7 @@ class RFNetwork(nn.Module):
             torch.ones_like(self.in_in_plastic)
         )
         
-        maxim = torch.max(post_scaling_factors.flatten(), torch.max(post_scaling_factors.flatten(), pre_post_scaling_factors))
+        maxim = torch.max(post_scaling_factors.flatten(), torch.max(post_scaling_factors.flatten(), pre_post_scaling_factors.flatten()))
         if maxim > 1:
           print("maxim", maxim)
         self.in_in_plastic = self.in_in_plastic*pre_scaling_factors*post_scaling_factors*pre_post_scaling_factors
