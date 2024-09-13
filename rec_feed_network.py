@@ -146,13 +146,13 @@ class RFNetwork(nn.Module):
         pre_scaling_factors = torch.where(
             pre_exceeding_mask & ~pre_post_exceeding_mask,
             self.max_pre_in_in / total_pre_connectivity,
-            torch.ones_like(self.plastic_in_in)
+            torch.ones_like(self.in_in_plastic)
         )
 
         post_scaling_factors = torch.where(
             post_exceeding_mask.unsqueeze(1) & ~pre_post_exceeding_mask,
             self.max_pre_in_in / total_pre_connectivity,
-            torch.ones_like(self.plastic_in_in)
+            torch.ones_like(self.in_in_plastic)
         )
 
         pre_post_scaling_factors = torch.where(
