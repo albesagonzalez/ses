@@ -135,8 +135,10 @@ class RFNetwork(nn.Module):
       elif self.homeostasis_in_in_type == 'renorm':
         if self.time_index%2 == 0:
           homeostasis_in_in_pre()
+          homeostasis_in_in_post()
         else:
           homeostasis_in_in_post()
+          homeostasis_in_in_pre()
 
 
       else:
@@ -181,11 +183,13 @@ class RFNetwork(nn.Module):
       elif self.homeostasis_out_in_type == 'bound':
         self.out_in_plastic = torch.clip(self.out_in_plastic, min=None, max=torch.min(self.max_post_out_in. self.max_pre_out_in))
         self.out_in = self.out_in_fixed + self.out_in_plastic
-      elif self.homeostasis_out_in_type == 'renorm':
         if self.time_index%2 == 0:
           homeostasis_out_in_pre()
+          homeostasis_out_in_post()
         else:
           homeostasis_out_in_post()
+          homeostasis_out_in_pre()
+
 
 
 
