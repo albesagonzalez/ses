@@ -150,15 +150,15 @@ class RFNetwork(nn.Module):
         self.in_in_plastic = torch.clip(self.in_in_plastic, min=None, max=torch.min(self.max_post_in_in. self.max_pre_in_in))
         self.in_in = self.in_in_fixed + self.in_in_plastic
       elif self.homeostasis_in_in_type == 'renorm':
-        homeostasis_in_in_mixed()
-        '''
+        #homeostasis_in_in_mixed()
+        #'''
         if self.time_index%2 == 0:
           homeostasis_in_in_pre()
           homeostasis_in_in_post()
         else:
           homeostasis_in_in_post()
           homeostasis_in_in_pre()
-        '''
+        #'''
 
       else:
         print("This type of homeostatic plasticity is not implemented")
