@@ -33,7 +33,7 @@ class RFNetwork(nn.Module):
               self.hebbian_out_in()
               self.homeostasis_out_in()
 
-            #self.record()
+            self.record()
             self.time_index += 1
 
             if test:
@@ -51,7 +51,7 @@ class RFNetwork(nn.Module):
         self.out = self.activation_out(self.out_hat, random=(not self.forward_input))
         self.hebbian_out_in()
         self.homeostasis_out_in()
-        #self.record()
+        self.record()
 
 
 
@@ -163,11 +163,8 @@ class RFNetwork(nn.Module):
             max_mixed/ total_av_connectivity,
             torch.ones_like(self.in_in_plastic)
         )
-        all_max = torch.tensor([pre_scaling_factors.max(), post_scaling_factors.max(), pre_post_scaling_factors.max()]).max()
-        if all_max > 1:
-          print(all_max)
-          print(self.time_index)
-          self.record()
+        #all_max = torch.tensor([pre_scaling_factors.max(), post_scaling_factors.max(), pre_post_scaling_factors.max()]).max()
+
 
         self.in_in_plastic = self.in_in_plastic*pre_scaling_factors*post_scaling_factors*pre_post_scaling_factors
         self.in_in = self.in_in_fixed + self.in_in_plastic
