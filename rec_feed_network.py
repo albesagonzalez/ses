@@ -316,7 +316,9 @@ class RFNetwork(nn.Module):
       self.connectivity_recordings_rate = rec_params["rate_connectivity"]
 
     def record(self):
+      print(self.time_index)
       if self.time_index%self.activity_recordings_rate == 0:
+        print("entered")
         for region in self.activity_recordings:
           layer_activity = getattr(self, region)
           self.activity_recordings[region].append(deepcopy(layer_activity.detach().numpy()))
