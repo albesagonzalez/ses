@@ -33,7 +33,7 @@ class RFNetwork(nn.Module):
               self.hebbian_out_in()
               self.homeostasis_out_in()
 
-            self.record()
+            #self.record()
             self.time_index += 1
 
             if test:
@@ -51,7 +51,7 @@ class RFNetwork(nn.Module):
         self.out = self.activation_out(self.out_hat, random=(not self.forward_input))
         self.hebbian_out_in()
         self.homeostasis_out_in()
-        self.record()
+        #self.record()
 
 
 
