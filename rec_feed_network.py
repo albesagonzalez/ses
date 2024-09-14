@@ -142,7 +142,7 @@ class RFNetwork(nn.Module):
         max_mixed = (self.max_pre_in_in + self.max_post_in_in)/2
 
         pre_exceeding_mask = (total_pre_connectivity > self.max_pre_in_in).clone().detach().unsqueeze(0).repeat(self.in_size, 1)
-        post_exceeding_mask = (total_post_connectivity > self.max_post_in_in).clone().detach().unsqueeze(0).repeat(1, self.in_size)
+        post_exceeding_mask = (total_post_connectivity > self.max_post_in_in).clone().detach().unsqueeze(1).repeat(1, self.in_size)
         pre_post_exceeding_mask = pre_exceeding_mask & post_exceeding_mask
 
 
