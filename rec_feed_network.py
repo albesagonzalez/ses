@@ -163,7 +163,7 @@ class RFNetwork(nn.Module):
             max_mixed/ total_av_connectivity,
             torch.ones_like(self.in_in_plastic)
         )
-        all_max = torch.tensor(pre_scaling_factors.max(), post_scaling_factors.max(), pre_post_scaling_factors.max()).max()
+        all_max = torch.tensor([pre_scaling_factors.max(), post_scaling_factors.max(), pre_post_scaling_factors.max()]).max()
         if all_max > 1:
           print(all_max)
         self.in_in_plastic = self.in_in_plastic*pre_scaling_factors*post_scaling_factors*pre_post_scaling_factors
