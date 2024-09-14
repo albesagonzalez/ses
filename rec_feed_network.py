@@ -88,6 +88,12 @@ class RFNetwork(nn.Module):
           depression_mask[~input_mask.bool()] = ((1 - self.depression_beta)*depression_mask - delta_depression)[~input_mask.bool()]
       return h
     
+    def combined_rule(self):
+      total_pre_connectivity = torch.sum(self.in_in_plastic, dim=0)
+      total_post_connectivity = torch.sum(self.in_in_plastic, dim=1)
+      pre_exceeding_mask = total_pre_connectivity > self.max_pre_in_in
+      self.in_in_plastic += self.lmbda_in_in*torch.outer(self.in_, self.in_)*self.hebb_dist_filter - self.in_in_plastic*self.w_max_post/total_post_connectivity.unsqueeze(1) - self.in_in_plastic*total_pre_connectivity/self.w_max_post
+    
     def hebbian_in_in(self):
       self.in_in_plastic += self.lmbda_in_in*torch.outer(self.in_, self.in_)*self.hebb_dist_filter
       #self.in_in_plastic += self.lmbda_in_in*torch.outer(self.in_, self.in_)
@@ -157,6 +163,9 @@ class RFNetwork(nn.Module):
             max_mixed/ total_av_connectivity,
             torch.ones_like(self.in_in_plastic)
         )
+        all_max = torch.tensor(pre_scaling_factors.max(), post_scaling_factors.max(), pre_post_scaling_factors.max()).max()
+        if all_max > 1:
+          print(all_max)
         self.in_in_plastic = self.in_in_plastic*pre_scaling_factors*post_scaling_factors*pre_post_scaling_factors
         self.in_in = self.in_in_fixed + self.in_in_plastic
 
