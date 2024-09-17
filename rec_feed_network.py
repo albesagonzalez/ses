@@ -266,7 +266,9 @@ class RFNetwork(nn.Module):
       self.out_in_sparsity_mask = torch.rand((self.out_size, self.in_size)) < self.out_in_sparsity
       self.out_in_fixed = nn.Linear(self.in_size, self.out_size, bias=False).weight.clone().detach()*self.out_in_g*self.out_in_sparsity_mask
       self.out_in_plastic = torch.zeros((self.out_size, self.in_size))
-      self.out_in = self.out_in_fixed + self.out_in_plastic   
+      self.out_in = self.out_in_fixed + self.out_in_plastic
+
+      self.max_mixed_in_in = self.max_post_in_in + self.max_pre_in_in
 
       self.hebb_dist_filter = torch.ones(self.in_in.shape) if self.hebb_distance_filter == None else self.init_distance_filter(self.hebb_distance_filter)
 
