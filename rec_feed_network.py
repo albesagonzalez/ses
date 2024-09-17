@@ -138,15 +138,11 @@ class RFNetwork(nn.Module):
       def homeostasis_in_in_mixed():
         total_post_connectivity = torch.sum(self.in_in_plastic, dim=1)
         total_pre_connectivity = torch.sum(self.in_in_plastic, dim=0)
-        total_av_connectivity = (total_pre_connectivity + total_post_connectivity.unsqueeze(1))/2
-        max_mixed = (self.max_pre_in_in + self.max_post_in_in)/2
+        total_pre_post_connectivity = total_post_connectivity + total_pre_connectivity.unsqueeze(1)
 
-        post_exceeding_mask = (total_post_connectivity >= self.max_post_in_in - 1e-4).clone().detach().unsqueeze(1).repeat(1, self.in_size)
-        pre_exceeding_mask = (total_pre_connectivity >= self.max_pre_in_in - 1e-4).clone().detach().unsqueeze(0).repeat(self.in_size, 1)
-
-        #post_exceeding_mask = (total_post_connectivity > self.max_post_in_in).clone().detach().unsqueeze(1).repeat(1, self.in_size)
-        #pre_exceeding_mask = (total_pre_connectivity > self.max_pre_in_in).clone().detach().unsqueeze(0).repeat(self.in_size, 1)
-        pre_post_exceeding_mask = pre_exceeding_mask & post_exceeding_mask
+        post_exceeding_mask = (total_post_connectivity >= 0.9*self.max_post_in_in).clone().detach().unsqueeze(1).repeat(1, self.in_size)
+        pre_exceeding_mask = (total_pre_connectivity >= 0.9*self.max_pre_in_in).clone().detach().unsqueeze(0).repeat(self.in_size, 1)
+        pre_post_exceeding_mask = (total_pre_post_connectivity >= 0.9*self.max_mixed_in_in).clone().detach() & post_exceeding_mask & pre_exceeding_mask
 
 
         post_scaling_factors = torch.where(
@@ -163,7 +159,7 @@ class RFNetwork(nn.Module):
 
         pre_post_scaling_factors = torch.where(
             pre_post_exceeding_mask,
-            max_mixed/ total_av_connectivity,
+            self.max_mixed_in_in/ total_pre_post_connectivity,
             torch.ones_like(self.in_in_plastic)
         )
         #all_max = torch.tensor([pre_scaling_factors.max(), post_scaling_factors.max(), pre_post_scaling_factors.max()]).max()
