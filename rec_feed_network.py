@@ -140,11 +140,11 @@ class RFNetwork(nn.Module):
         total_pre_connectivity = torch.sum(self.in_in_plastic, dim=0)
         total_pre_post_connectivity = total_post_connectivity + total_pre_connectivity.unsqueeze(1)
 
-        post_exceeding_mask = (total_post_connectivity >= 0.9*self.max_post_in_in).clone().detach().unsqueeze(1).repeat(1, self.in_size)
-        pre_exceeding_mask = (total_pre_connectivity >= 0.9*self.max_pre_in_in).clone().detach().unsqueeze(0).repeat(self.in_size, 1)
+        post_exceeding_mask = (total_post_connectivity >= self.max_post_in_in).clone().detach().unsqueeze(1).repeat(1, self.in_size)
+        pre_exceeding_mask = (total_pre_connectivity >= self.max_pre_in_in).clone().detach().unsqueeze(0).repeat(self.in_size, 1)
         pre_post_exceeding_mask = (total_pre_post_connectivity >= 0.9*self.max_mixed_in_in).clone().detach() & post_exceeding_mask & pre_exceeding_mask
 
-
+        '''
         post_scaling_factors = torch.where(
             post_exceeding_mask & ~pre_post_exceeding_mask,
             self.max_post_in_in / total_post_connectivity.unsqueeze(1),
@@ -157,6 +157,20 @@ class RFNetwork(nn.Module):
             torch.ones_like(self.in_in_plastic)
         )
 
+        '''
+
+        post_scaling_factors = torch.where(
+            post_exceeding_mask,
+            self.max_post_in_in / total_post_connectivity.unsqueeze(1),
+            torch.ones_like(self.in_in_plastic)
+        )
+
+        pre_scaling_factors = torch.where(
+            pre_exceeding_mask,
+            self.max_pre_in_in / total_pre_connectivity,
+            torch.ones_like(self.in_in_plastic)
+          )
+
         pre_post_scaling_factors = torch.where(
             pre_post_exceeding_mask,
             self.max_mixed_in_in/ total_pre_post_connectivity,
@@ -165,7 +179,9 @@ class RFNetwork(nn.Module):
         #all_max = torch.tensor([pre_scaling_factors.max(), post_scaling_factors.max(), pre_post_scaling_factors.max()]).max()
 
 
-        self.in_in_plastic = self.in_in_plastic*pre_scaling_factors*post_scaling_factors*pre_post_scaling_factors
+        #self.in_in_plastic = self.in_in_plastic*pre_scaling_factors*post_scaling_factors*pre_post_scaling_factors
+        self.in_in_plastic = self.in_in_plastic*pre_scaling_factors*post_scaling_factors
+
         self.in_in = self.in_in_fixed + self.in_in_plastic
 
 
