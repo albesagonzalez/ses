@@ -42,8 +42,8 @@ def get_sample_from_num_swaps(x_0, num_swaps):
   on_index = x_0.nonzero().squeeze(1)
   off_index = (x_0 ==0).nonzero().squeeze(1)
   #choose at random num_flips indices
-  flip_off = on_index[torch.randperm(len(on_index))[:int(num_swaps/2)]
-  flip_on = off_index[torch.randperm(len(off_index))[:int(num_swaps/2)]
+  flip_off = on_index[torch.randperm(len(on_index))[:int(num_swaps/2)]]
+  flip_on = off_index[torch.randperm(len(off_index))[:int(num_swaps/2)]]
   #flip on to off and off to on
   x[flip_off] = 0
   x[flip_on] = 1
