@@ -82,7 +82,6 @@ class RFNetwork(nn.Module):
       num_iterations = self.pattern_complete_iterations if num_iterations == None else num_iterations
       for iteration in range(num_iterations):
         h = self.activation_in(F.linear(h, depression_mask*aux_synapses))
-        #h = self.activation_in(F.linear(h, self.in_in))
         if depress_synapses:
           delta_depression = self.depression_amplitude*torch.outer(h, h)
           depression_mask[~input_mask.bool()] = ((1 - self.depression_beta)*depression_mask - delta_depression)[~input_mask.bool()]

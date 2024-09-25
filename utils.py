@@ -8,6 +8,19 @@ import random
 from collections import OrderedDict
 
 
+def get_Hopfield_Tsodyks(input):
+  W = torch.zeros((input.shape[2], input.shape[2]))
+  processed_input = input.squeeze(1) - torch.mean(input)
+  for pattern in processed_input:
+      W += torch.outer(pattern, pattern)
+  return W
+
+def get_Hebbian(input):
+  W = torch.zeros((input.shape[2], input.shape[2]))
+  processed_input = input.squeeze(1)
+  for pattern in processed_input:
+      W += torch.outer(pattern, pattern)
+  return W
 
 
 def get_cos_sim_torch(x1, x2):
@@ -16,18 +29,24 @@ def get_cos_sim_np(x1, x2):
   return np.dot(x1, x2)/(np.linalg.norm(x1)*np.linalg.norm(x2))
 
 
-def get_cond_matrix(latent_space, network):
+def get_cond_matrix(latent_space, weights, eta):
   num_subs = len(latent_space.sub_index_to_neuron_index)
   sim_cond_matrix = np.zeros((num_subs, num_subs))
   th_cond_matrix = np.zeros((num_subs, num_subs))
   for conditioned_sub_index, ((conditioned_latent, conditioned_sub), conditioned_neuron_index) in enumerate(zip(latent_space.sub_index_to_latent_sub, latent_space.sub_index_to_neuron_index)):
     for condition_sub_index, ((condition_latent, condition_sub), condition_neuron_index) in  enumerate(zip(latent_space.sub_index_to_latent_sub, latent_space.sub_index_to_neuron_index)):
-      sim_cond_matrix[conditioned_sub_index][condition_sub_index] = torch.mean(network.pfc_pfc[conditioned_neuron_index][:, condition_neuron_index])
+      if conditioned_sub != condition_sub:
+        sim_cond_matrix[conditioned_sub_index][condition_sub_index] = np.mean(weights[conditioned_neuron_index][:, condition_neuron_index])
+      else:
+        sim_cond_matrix[conditioned_sub_index][condition_sub_index] = np.mean(weights[conditioned_neuron_index][:, condition_neuron_index])
       if conditioned_latent != condition_latent:
         label = [0, 0]
         label[conditioned_latent] = conditioned_sub
         label[condition_latent] = condition_sub
-        th_cond_matrix[conditioned_sub_index][condition_sub_index] = latent_space.label_to_probs[tuple(label)]/latent_space.sub_index_to_marginal[condition_sub_index]
+        try:
+          th_cond_matrix[conditioned_sub_index][condition_sub_index] = latent_space.label_to_probs[tuple(label)]/(eta*latent_space.sub_index_to_marginal[condition_sub_index] + (1 - eta)*latent_space.sub_index_to_marginal[conditioned_sub_index])
+        except:
+          th_cond_matrix[conditioned_sub_index][condition_sub_index] = 0
 
       elif conditioned_sub == condition_sub:
         th_cond_matrix[conditioned_sub_index][condition_sub_index] = 1
@@ -35,6 +54,7 @@ def get_cond_matrix(latent_space, network):
       else:
         th_cond_matrix[conditioned_sub_index][condition_sub_index] = 0
   return sim_cond_matrix, th_cond_matrix
+
 
 def get_sample_from_num_swaps(x_0, num_swaps):
   x = x_0.clone().detach()
