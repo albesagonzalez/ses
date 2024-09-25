@@ -301,3 +301,52 @@ def make_input(num_days, day_length, mean_duration, fixed_duration, num_swaps, l
       day_timestep += pattern_duration
 
   return input, input_latents
+
+
+def selectivity_indices(connectivity_matrix, presynaptic_patterns, threshold=0.):
+    """
+    Computes the selectivity of postsynaptic neurons to presynaptic activity patterns.
+
+    Parameters:
+        connectivity_matrix (np.ndarray): Matrix of shape (n_post, n_pre) representing
+                                          the connectivity strengths.
+        presynaptic_patterns (np.ndarray): Matrix of shape (m, n_pre) representing
+                                           m different presynaptic activity patterns.
+        threshold (float): A minimum selectivity value to consider a postsynaptic neuron selective.
+                           Below this value, the neuron is considered non-selective and gets NaN.
+
+    Returns:
+        np.ndarray: A vector of length n_post with the index of the most selective
+                    presynaptic pattern or NaN if below the threshold.
+    """
+    # Normalize the presynaptic patterns and the connectivity matrix
+    normalized_patterns = presynaptic_patterns / np.linalg.norm(presynaptic_patterns, axis=1, keepdims=True)
+    normalized_connectivity = connectivity_matrix / np.linalg.norm(connectivity_matrix, axis=1, keepdims=True)
+
+    # Calculate the dot product (cosine similarity) between connectivity and patterns
+    dot_product_matrix = np.dot(normalized_connectivity, normalized_patterns.T)
+
+    # Find the index of the maximum selectivity value for each postsynaptic neuron
+    max_indices = np.argmax(dot_product_matrix, axis=1)
+    max_values = np.max(dot_product_matrix, axis=1)
+    # Apply threshold to determine if a neuron is selective
+    max_indices[max_values < threshold] = -1
+    result = np.where(max_indices == -1, np.nan, max_indices)
+
+    return result
+
+
+def get_distribution_num_overlaps(K, N, num_samples):
+  overlaps = []
+  for sample in range(num_samples):
+    draw_1 = torch.randperm(N)[:K]
+    draw_2 = torch.randperm(N)[:K]
+    # Convert tensors to sets
+    set_a = set(draw_1.tolist())
+    set_b = set(draw_2.tolist())
+
+
+    # Find intersection and count common values
+    common_values = set_a.intersection(set_b)
+    overlaps.append(len(common_values))
+  return overlaps
