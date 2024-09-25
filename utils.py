@@ -38,6 +38,7 @@ def get_cond_matrix(latent_space, weights, eta):
       if conditioned_sub != condition_sub:
         sim_cond_matrix[conditioned_sub_index][condition_sub_index] = np.mean(weights[conditioned_neuron_index][:, condition_neuron_index])
       else:
+        #sim_cond_matrix[conditioned_sub_index][condition_sub_index] = np.mean(weights[conditioned_neuron_index][:, condition_neuron_index][~np.eye(condition_neuron_index.shape[0], dtype=bool)])
         sim_cond_matrix[conditioned_sub_index][condition_sub_index] = np.mean(weights[conditioned_neuron_index][:, condition_neuron_index])
       if conditioned_latent != condition_latent:
         label = [0, 0]
