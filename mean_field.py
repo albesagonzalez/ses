@@ -18,7 +18,6 @@ def get_probs(latent_space, input_size, network_sparsity):
               if attribute_i == 0:
                 p["ij"][neuron_i, neuron_j] = np.sum(p_ij_latent[element_i])
               else:
-                print("hey 2")
                 p["ij"][neuron_i, neuron_j] = np.sum(p_ij_latent[:, element_i])
           else:
             (element_0, element_1) = (element_i, element_j) if attribute_i == 0 else (element_j, element_i)
