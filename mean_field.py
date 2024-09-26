@@ -25,7 +25,8 @@ def get_probs(latent_space, input_size, network_sparsity):
         
         p["i"] = network_sparsity*np.ones((input_size))
         p["j"] = network_sparsity*np.ones((input_size))
-
+        p["i"][100:150] = 0.8
+        p["i"][150:200] = 0.2
         p["j"][100:150] = 0.8
         p["j"][150:200] = 0.2
 
