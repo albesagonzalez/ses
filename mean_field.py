@@ -30,7 +30,7 @@ def get_probs(latent_space, input_size, network_sparsity):
         p["j"][100:150] = 0.8
         p["j"][150:200] = 0.2
 
-        return p
+    return p
 
 
 def get_mean_field_solution(t, post_i, pre_j, i, sp, p, only_vars=False):
