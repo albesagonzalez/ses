@@ -7,28 +7,22 @@ def get_probs(latent_space, input_size, network_sparsity):
     p["ij"] = np.zeros((input_size, input_size))
     for neuron_i in range(input_size):
         for neuron_j in range(input_size):
-            attribute_i = get_attribute_from_neuron(neuron_i, latent_space)
-            attribute_j = get_attribute_from_neuron(neuron_j, latent_space)
-            element_i = (neuron_i - get_starting_neuron_from_attribute(attribute_i, latent_space))//latent_space.act_sizes[attribute_i]
-            element_j = (neuron_j - get_starting_neuron_from_attribute(attribute_j, latent_space))//latent_space.act_sizes[attribute_j]
-            if attribute_i ==  attribute_j:
-                if element_i != element_j:
-                    p["ij"][neuron_i, neuron_j] = 0
-                if element_i == element_j:
-                    if attribute_i == 0:
-                        p["ij"][neuron_i, neuron_j] = np.sum(p_ij_latent[element_i])
-                else:
-                    p["ij"][neuron_i, neuron_j] = np.sum(p_ij_latent[:, element_i])
-            else:
-                (element_0, element_1) = (element_i, element_j) if attribute_i == 0 else (element_j, element_i)
-                p["ij"][neuron_i, neuron_j] = p_ij_latent[element_0, element_1]
+          attribute_i = get_attribute_from_neuron(neuron_i, latent_space)
+          attribute_j = get_attribute_from_neuron(neuron_j, latent_space)
+          element_i = (neuron_i - get_starting_neuron_from_attribute(attribute_i, latent_space))//latent_space.act_sizes[attribute_i]
+          element_j = (neuron_j - get_starting_neuron_from_attribute(attribute_j, latent_space))//latent_space.act_sizes[attribute_j]
+          if attribute_i ==  attribute_j:
+            if element_i != element_j:
+              p["ij"][neuron_i, neuron_j] = 0
+            if element_i == element_j:
+              if attribute_i == 0:
+                p["ij"][neuron_i, neuron_j] = np.sum(p_ij_latent[element_i])
+              else:
+                p["ij"][neuron_i, neuron_j] = np.sum(p_ij_latent[:, element_i])
+          else:
+            (element_0, element_1) = (element_i, element_j) if attribute_i == 0 else (element_j, element_i)
+            p["ij"][neuron_i, neuron_j] = p_ij_latent[element_0, element_1]
         
-
-        p["i"] = network_sparsity*np.ones((input_size))
-        p["j"] = network_sparsity*np.ones((input_size))
-
-        p["i"][100:150] = 0.8
-        p["i"][150:200] = 0.2
 
         p["j"][100:150] = 0.8
         p["j"][150:200] = 0.2
