@@ -9,6 +9,12 @@ def get_attribute_from_neuron(neuron, latent):
       return attribute
     cum_count += size
 
+def get_starting_neuron_from_attribute(attriute, latent):
+  cum_count = 0
+  for size in latent.total_sizes[:attriute]:
+    cum_count += size
+  return cum_count
+
 def get_original_probs(element_i, element_j):
    if element_i == 0 and element_j == 0:
       p_11, p_10, p_01, p_00 = 0.5, 0, 0, 0.5
@@ -157,6 +163,7 @@ def get_probs(latent_space, input_size, network_sparsity):
           element_j = (neuron_j - get_starting_neuron_from_attribute(attribute_j, latent_space))//latent_space.act_sizes[attribute_j]
           p11, p10, p01, p00 = get_original_probs(element_i, element_j)
           p["ij"][neuron_j][neuron_i] = p11
+          print(p11)
         
         p["i"] = network_sparsity*np.ones((input_size))
         p["j"] = network_sparsity*np.ones((input_size))
@@ -240,10 +247,3 @@ def get_mean_field_solution(t, post_i, pre_j, i, sp, p, only_vars=False):
       pass
 
     return w, S_pre, S_post if only_vars else (T_pre_free, T_post_free, S_pre, S_post, tau_w, fp_w, w)
-
-
-def get_starting_neuron_from_attribute(attriute, latent):
-  cum_count = 0
-  for size in latent.total_sizes[:attriute]:
-    cum_count += size
-  return cum_count
