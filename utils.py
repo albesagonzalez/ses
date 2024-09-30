@@ -203,21 +203,6 @@ def get_cos_sim_np(x1, x2):
   return np.dot(x1, x2)/(np.linalg.norm(x1)*np.linalg.norm(x2))
 
 
-def get_sample_from_num_swaps(x_0, num_swaps):
-  x = x_0.clone().detach()
-  #get on and off index
-  on_index = x_0.nonzero().squeeze(1)
-  off_index = (x_0 ==0).nonzero().squeeze(1)
-  #choose at random num_flips indices
-  flip_off = on_index[torch.randperm(len(on_index))[:num_swaps]]
-  flip_on = off_index[torch.randperm(len(off_index))[:num_swaps]]
-  #flip on to off and off to on
-  x[flip_off] = 0
-  x[flip_on] = 1
-  return x
-
-
-
 def make_input(num_days, day_length, mean_duration, fixed_duration, num_swaps, latent_space, satellite=False):
   def get_partial_circle():
     delta_theta = 45
@@ -245,19 +230,6 @@ def make_input(num_days, day_length, mean_duration, fixed_duration, num_swaps, l
     error_index = torch.randperm(p_size)[:int(p_size*error_rate)]
     pattern[error_index] = pattern[error_index]^ torch.ones_like(pattern[error_index])
     return pattern
-
-  def get_sample_from_num_swaps(x_0, num_swaps):
-    x = x_0.clone().detach()
-    #get on and off index
-    on_index = x_0.nonzero().squeeze(1)
-    off_index = (x_0 ==0).nonzero().squeeze(1)
-    #choose at random num_flips indices
-    flip_off = on_index[torch.randperm(len(on_index))[:num_swaps]]
-    flip_on = off_index[torch.randperm(len(off_index))[:num_swaps]]
-    #flip on to off and off to on
-    x[flip_off] = 0
-    x[flip_on] = 1
-    return x
 
   #initialize input tensor
   #input = torch.zeros((num_days, day_length, sum(latent_space.total_sizes)))
