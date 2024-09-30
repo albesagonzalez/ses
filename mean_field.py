@@ -167,7 +167,7 @@ def get_probs(latent_space, input_size, network_sparsity, K, N_swap, N):
           element_j = (neuron_j - get_starting_neuron_from_attribute(attribute_j, latent_space))//latent_space.act_sizes[attribute_j]
           element_i, element_j = element_i + 2*attribute_i, element_j + 2*attribute_j
           p11, p10, p01, p00 = get_original_probs(element_i, element_j)
-          p["ij"][neuron_j][neuron_i] = get_swap_probs(p11, p10, p01, p00, K, N_swap, N)
+          p["ij"][neuron_i][neuron_j] = get_swap_probs(p11, p10, p01, p00, K, N_swap, N)
         
     p["i"] = network_sparsity*np.ones((input_size))
     p["j"] = network_sparsity*np.ones((input_size))
