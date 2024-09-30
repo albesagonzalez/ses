@@ -61,16 +61,6 @@ def get_original_probs(element_i, element_j):
    return p_11, p_10, p_01, p_00
 
 
-
-probs_dict = {{} for neuron_i in range(200) for j in range(200)}
-
-for neuron_i in range(200):
-   attribute_i = get_attribute_from_neuron(neuron_i)
-   for neuron_j in range(200):
-      attribute_j =  get_attribute_from_neuron(neuron_j)
-      probs_dict["11"] = 
-
-
 def total_probability(p0_xi_xj_1_1,  p0_xi_xj_1_0, p0_xi_xj_0_1, p0_xi_xj_0_0, K, N_swap, N):
     """
     Calculate the total probability of two neurons being active.
