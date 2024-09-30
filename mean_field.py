@@ -96,7 +96,7 @@ def get_swap_probs(p0_xi_xj_1_1,  p0_xi_xj_1_0, p0_xi_xj_0_1, p0_xi_xj_0_0, K, N
     # Total probability
     total_prob = term1*p0_xi_xj_1_1 + term2*(p0_xi_xj_1_0 + p0_xi_xj_0_1) + term3*p0_xi_xj_0_0
 
-    return term1, term2, term3, total_prob
+    return total_prob
 
 
 def get_swap_marginal(K, N_swap, N, p_0_i):
