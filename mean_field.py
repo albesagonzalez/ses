@@ -116,7 +116,7 @@ def calculate_p_i(K, N_swap, N, p_0_i):
 
     p_i = term1 + term2
     return p_i
-'''
+
 def get_probs(latent_space, input_size, network_sparsity):
     p_ij_latent = np.array(list(latent_space.label_to_probs.values())).reshape((latent_space.dims[0], latent_space.dims[1]))
 
@@ -149,7 +149,7 @@ def get_probs(latent_space, input_size, network_sparsity):
 
     return p
 
-'''
+
 '''
 def get_probs(latent_space, input_size, network_sparsity):
     p_ij_latent = np.array(list(latent_space.label_to_probs.values())).reshape((latent_space.dims[0], latent_space.dims[1]))
