@@ -116,7 +116,7 @@ def calculate_p_i(K, N_swap, N, p_0_i):
 
     p_i = term1 + term2
     return p_i
-
+'''
 def get_probs(latent_space, input_size, network_sparsity):
     p_ij_latent = np.array(list(latent_space.label_to_probs.values())).reshape((latent_space.dims[0], latent_space.dims[1]))
 
@@ -148,9 +148,9 @@ def get_probs(latent_space, input_size, network_sparsity):
         p["j"][150:200] = 0.2
 
     return p
-
-
 '''
+
+
 def get_probs(latent_space, input_size, network_sparsity):
     p_ij_latent = np.array(list(latent_space.label_to_probs.values())).reshape((latent_space.dims[0], latent_space.dims[1]))
 
@@ -162,9 +162,9 @@ def get_probs(latent_space, input_size, network_sparsity):
           attribute_j = get_attribute_from_neuron(neuron_j, latent_space)
           element_i = (neuron_i - get_starting_neuron_from_attribute(attribute_i, latent_space))//latent_space.act_sizes[attribute_i]
           element_j = (neuron_j - get_starting_neuron_from_attribute(attribute_j, latent_space))//latent_space.act_sizes[attribute_j]
+          element_i, element_j = element_i + 2*attribute_i, element_j + 2*attribute_j
           p11, p10, p01, p00 = get_original_probs(element_i, element_j)
           p["ij"][neuron_j][neuron_i] = p11
-          print(p11)
         
         p["i"] = network_sparsity*np.ones((input_size))
         p["j"] = network_sparsity*np.ones((input_size))
@@ -174,7 +174,7 @@ def get_probs(latent_space, input_size, network_sparsity):
         p["j"][150:200] = 0.2
 
     return p
-'''
+
 def get_mean_field_solution(t, post_i, pre_j, i, sp, p, only_vars=False):
 
     T_pre_free = sp["w_pre_max"]/(sp["K_post"]*sp["lmbda"]*p["j"][pre_j])
