@@ -150,6 +150,7 @@ def get_probs(latent_space, input_size, network_sparsity):
     return p
 
 '''
+'''
 def get_probs(latent_space, input_size, network_sparsity):
     p_ij_latent = np.array(list(latent_space.label_to_probs.values())).reshape((latent_space.dims[0], latent_space.dims[1]))
 
@@ -173,7 +174,7 @@ def get_probs(latent_space, input_size, network_sparsity):
         p["j"][150:200] = 0.2
 
     return p
-
+'''
 def get_mean_field_solution(t, post_i, pre_j, i, sp, p, only_vars=False):
 
     T_pre_free = sp["w_pre_max"]/(sp["K_post"]*sp["lmbda"]*p["j"][pre_j])
