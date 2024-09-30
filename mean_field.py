@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 
@@ -175,6 +176,8 @@ def get_probs(latent_space, input_size, network_sparsity, K, N_swap, N):
         p["i"][150:200] =get_swap_marginal(K, N_swap, N, 0.2)
         p["j"][100:150] = get_swap_marginal(K, N_swap, N, 0.8)
         p["j"][150:200] =  get_swap_marginal(K, N_swap, N, 0.2)
+
+        plt.imshow(p[i].reshape((-1, 50)))
 
     return p
 
