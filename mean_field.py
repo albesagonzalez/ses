@@ -1,5 +1,126 @@
 import numpy as np
 
+
+
+def get_attribute_from_neuron(neuron, latent):
+  cum_count = 0
+  for attribute, size in enumerate(latent.total_sizes):
+    if neuron < cum_count + size:
+      return attribute
+    cum_count += size
+
+def get_original_probs(element_i, element_j):
+   if element_i == 0 and element_j == 0:
+      p_11, p_10, p_01, p_00 = 0.5, 0, 0, 0.5
+
+   if element_i == 0 and element_j == 1:
+      p_11, p_10, p_01, p_00 = 0, 0.5, 0.5, 0
+
+   if element_i == 0 and element_j == 2:
+      p_11, p_10, p_01, p_00 = 0.5*0.8, 0.5*0.2, 0.5*0.8, 0.5*0.2
+
+   if element_i == 0 and element_j == 3:
+      p_11, p_10, p_01, p_00 = 0.5*0.2, 0.5*0.8, 0.5*0.2, 0.5*0.8
+
+   if element_i == 1 and element_j == 0:
+      p_11, p_10, p_01, p_00 = 0, 0.5, 0.5, 0
+
+   if element_i == 1 and element_j == 1:
+      p_11, p_10, p_01, p_00 = 0.5, 0, 0, 0.5
+
+   if element_i == 1 and element_j == 2:
+      p_11, p_10, p_01, p_00 = 0.5*0.8, 0.5*0.2, 0.5*0.8, 0.5*0.2
+
+   if element_i == 1 and element_j == 3:
+      p_11, p_10, p_01, p_00 = 0.5*0.2, 0.5*0.8, 0.5*0.2, 0.5*0.8
+
+   if element_i == 2 and element_j == 0:
+      p_11, p_10, p_01, p_00 = 0.5*0.8, 0.5*0.2, 0.5*0.8, 0.5*0.2
+
+   if element_i == 2 and element_j == 1:
+      p_11, p_10, p_01, p_00 = 0.5*0.8, 0.5*0.2, 0.5*0.8, 0.5*0.2
+
+   if element_i == 2 and element_j == 2:
+      p_11, p_10, p_01, p_00 = 0.8, 0, 0, 0.2
+
+   if element_i == 2 and element_j == 3:
+      p_11, p_10, p_01, p_00 = 0, 0.8, 0.2, 0
+
+   if element_i == 3 and element_j == 0:
+      p_11, p_10, p_01, p_00 = 0.5*0.2, 0.5*0.8, 0.5*0.2, 0.5*0.8
+
+   if element_i == 3 and element_j == 1:
+      p_11, p_10, p_01, p_00 = 0.5*0.2, 0.5*0.8, 0.5*0.2, 0.5*0.8
+
+   if element_i == 3 and element_j == 2:
+      p_11, p_10, p_01, p_00 = 0.2, 0, 0, 0.8
+
+   if element_i == 3 and element_j == 3:
+      p_11, p_10, p_01, p_00 = 0.2, 0, 0, 0.8
+
+   return p_11, p_10, p_01, p_00
+
+
+
+probs_dict = {{} for neuron_i in range(200) for j in range(200)}
+
+for neuron_i in range(200):
+   attribute_i = get_attribute_from_neuron(neuron_i)
+   for neuron_j in range(200):
+      attribute_j =  get_attribute_from_neuron(neuron_j)
+      probs_dict["11"] = 
+
+
+def total_probability(p0_xi_xj_1_1,  p0_xi_xj_1_0, p0_xi_xj_0_1, p0_xi_xj_0_0, K, N_swap, N):
+    """
+    Calculate the total probability of two neurons being active.
+
+    Parameters:
+    p0_xi_xj_1_1 (float): p0(x_i = 1, x_j = 1)
+    p0_xi_xj_0_1 (float): p0(x_i = 0, x_j = 1)
+    p0_xi_xj_0_0 (float): p0(x_i = 0, x_j = 0)
+    K (int): The number of neurons
+    N_swap (int): The number of swaps
+    N (int): The total number of neurons
+
+    Returns:
+    float: The total probability p(x_i = 1, x_j = 1)
+    """
+
+    # First term
+    term1 = ((K - N_swap / 2) * (K - N_swap / 2 - 1)) / (K * (K - 1))
+
+    # Second term
+    term2 = ((K - N_swap / 2) / K) * (N_swap / (N - K))
+
+    # Third term
+    term3 = (N_swap/2 / (N - K)) * ((N_swap/2 - 1) / (N - K - 1))
+
+    # Total probability
+    total_prob = term1*p0_xi_xj_1_1 + term2*(p0_xi_xj_1_0 + p0_xi_xj_0_1) + term3*p0_xi_xj_0_0
+
+    return term1, term2, term3, total_prob
+
+
+def calculate_p_i(K, N_swap, N, p_0_i):
+    """
+    Calculate the value of p(i) based on the given parameters.
+
+    Parameters:
+    K (int or float): Number of neurons in the subset
+    N_swap (int or float): The number of swaps
+    N (int or float): Total number of neurons
+    p_0_i (float): The initial probability for neuron i
+
+    Returns:
+    float: The value of p(i)
+    """
+    term1 = ((K - N_swap / 2) / K) * ((K - N_swap / 2 - 1) / (K - 1)) * p_0_i
+    term2 = (N_swap / (N - K)) * (1 - p_0_i)
+
+    p_i = term1 + term2
+    return p_i
+'''
 def get_probs(latent_space, input_size, network_sparsity):
     p_ij_latent = np.array(list(latent_space.label_to_probs.values())).reshape((latent_space.dims[0], latent_space.dims[1]))
 
@@ -32,6 +153,29 @@ def get_probs(latent_space, input_size, network_sparsity):
 
     return p
 
+'''
+def get_probs(latent_space, input_size, network_sparsity):
+    p_ij_latent = np.array(list(latent_space.label_to_probs.values())).reshape((latent_space.dims[0], latent_space.dims[1]))
+
+    p = {}
+    p["ij"] = np.zeros((input_size, input_size))
+    for neuron_i in range(input_size):
+        for neuron_j in range(input_size):
+          attribute_i = get_attribute_from_neuron(neuron_i, latent_space)
+          attribute_j = get_attribute_from_neuron(neuron_j, latent_space)
+          element_i = (neuron_i - get_starting_neuron_from_attribute(attribute_i, latent_space))//latent_space.act_sizes[attribute_i]
+          element_j = (neuron_j - get_starting_neuron_from_attribute(attribute_j, latent_space))//latent_space.act_sizes[attribute_j]
+          p11, p10, p01, p00 = get_original_probs(element_i, element_j)
+          p["ij"][neuron_i][neuron_j] = p11
+        
+        p["i"] = network_sparsity*np.ones((input_size))
+        p["j"] = network_sparsity*np.ones((input_size))
+        p["i"][100:150] = 0.8
+        p["i"][150:200] = 0.2
+        p["j"][100:150] = 0.8
+        p["j"][150:200] = 0.2
+
+    return p
 
 def get_mean_field_solution(t, post_i, pre_j, i, sp, p, only_vars=False):
 
@@ -106,15 +250,6 @@ def get_mean_field_solution(t, post_i, pre_j, i, sp, p, only_vars=False):
       pass
 
     return w, S_pre, S_post if only_vars else (T_pre_free, T_post_free, S_pre, S_post, tau_w, fp_w, w)
-
-
-
-def get_attribute_from_neuron(neuron, latent):
-  cum_count = 0
-  for attribute, size in enumerate(latent.total_sizes):
-    if neuron < cum_count + size:
-      return attribute
-    cum_count += size
 
 
 def get_starting_neuron_from_attribute(attriute, latent):
