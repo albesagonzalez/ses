@@ -117,6 +117,7 @@ def get_swap_marginal(K, N_swap, N, p_0_i):
     term2 = (N_swap / (N - K)) * (1 - p_0_i)
 
     p_i = term1 + term2
+    print(p_i)
     return p_i
 '''
 def get_probs(latent_space, input_size, network_sparsity):
