@@ -167,6 +167,8 @@ def get_probs(latent_space, input_size, network_sparsity, K, N_swap, N):
           p11, p10, p01, p00 = get_original_probs(element_i, element_j)
           p["ij"][neuron_j][neuron_i] = get_swap_probs(p11, p10, p01, p00, K, N_swap, N)
         
+        p["i"] = network_sparsity*np.ones((input_size))
+        p["j"] = network_sparsity*np.ones((input_size))
         p["i"][:100] = get_swap_marginal(K, N, N_swap, 0.5)
         p["j"][:100] = get_swap_marginal(K, N, N_swap, 0.5)
         p["i"][100:150] = get_swap_marginal(K, N_swap, N, 0.8)
