@@ -379,7 +379,32 @@ class RFNetwork(nn.Module):
       # The distance_tensor now has a shape of (784, 784)
 
       return distance_tensor
-   '''
+    
+    def plot_activity(self, figsize, pattern_size, cmap, pattern=None, show_title=True):
+        activity = pattern if pattern is not None else self.in_
+        fig, axes = plt.subplots(len(self.in_regions), 1, figsize=figsize)
+        
+        for ax, region, name in zip(axes, self.in_regions, self.in_regions_names):
+            # Display the image
+            im = ax.imshow(activity[region].reshape((-1, pattern_size)), cmap=cmap, interpolation='none')
+    
+            # Add grid lines around each pixel
+            ax.set_xticks(np.arange(-0.5, activity[region].reshape((-1, pattern_size)).shape[1], 1), minor=True)
+            ax.set_yticks(np.arange(-0.5, activity[region].reshape((-1, pattern_size)).shape[0], 1), minor=True)
+            ax.grid(which="minor", color="black", linestyle='-', linewidth=1)
+            
+            # Hide major ticks
+            ax.tick_params(which="major", bottom=False, left=False)
+            
+            if show_title:
+                ax.set_title(name, fontsize=20)
+            
+            # Optionally remove tick labels if you don't need them
+            ax.set_xticks([])
+            ax.set_yticks([])
+
+        plt.show()
+'''
     def plot_activity(self, figsize, pattern_size, cmap, pattern=None, show_title=True):
       activity = pattern if pattern!=None else self.in_
       fig, axes = plt.subplots(len(self.in_regions), 1, figsize=figsize)
@@ -390,28 +415,5 @@ class RFNetwork(nn.Module):
         ax.set_xticks([], [])
         ax.set_yticks([], [])
       plt.grid(True, which='both', color='black', linewidth=1)
-   '''
-def plot_activity(self, figsize, pattern_size, cmap, pattern=None, show_title=True):
-    activity = pattern if pattern is not None else self.in_
-    fig, axes = plt.subplots(len(self.in_regions), 1, figsize=figsize)
-    
-    for ax, region, name in zip(axes, self.in_regions, self.in_regions_names):
-        # Display the image
-        im = ax.imshow(activity[region].reshape((-1, pattern_size)), cmap=cmap, interpolation='none')
-        
-        # Add grid lines around each pixel
-        ax.set_xticks(np.arange(-0.5, activity[region].reshape((-1, pattern_size)).shape[1], 1), minor=True)
-        ax.set_yticks(np.arange(-0.5, activity[region].reshape((-1, pattern_size)).shape[0], 1), minor=True)
-        ax.grid(which="minor", color="black", linestyle='-', linewidth=1)
-        
-        # Hide major ticks
-        ax.tick_params(which="major", bottom=False, left=False)
-        
-        if show_title:
-            ax.set_title(name, fontsize=20)
-        
-        # Optionally remove tick labels if you don't need them
-        ax.set_xticks([])
-        ax.set_yticks([])
+'''
 
-    plt.show()
