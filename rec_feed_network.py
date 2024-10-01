@@ -67,7 +67,7 @@ class RFNetwork(nn.Module):
       return final_x
     '''
     
-    def activation_in(self, x, cue, random=False):
+    def activation_in(self, x, cue=None, random=False):
       x = torch.randn(x.shape) if random else x + torch.abs(torch.min(x)/10)*torch.randn(x.shape)
       x_max = torch.max(x)
       x[cue == 1] = x_max + 1e-7
@@ -82,7 +82,7 @@ class RFNetwork(nn.Module):
       x_prime[torch.topk(x, int(self.out_size*self.out_sparsity)).indices] = 1
       return x_prime
 
-    def pattern_complete(self, h_0=None, num_iterations=None, depress_synapses=False):
+    def pattern_complete(self, h_0=None, cue=None, num_iterations=None, depress_synapses=False):
 
       input_mask = torch.outer(h_0, h_0)
       depression_mask = torch.ones_like(self.in_in)
@@ -91,6 +91,8 @@ class RFNetwork(nn.Module):
       h = self.activation_in(h)
       num_iterations = self.pattern_complete_iterations if num_iterations == None else num_iterations
       for iteration in range(num_iterations):
+        h_max = torch.max(h)
+        h[cue==1] = h_max +1e-7
         h = self.activation_in(F.linear(h, depression_mask*aux_synapses))
         if depress_synapses:
           delta_depression = self.depression_amplitude*torch.outer(h, h)
