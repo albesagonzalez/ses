@@ -55,8 +55,8 @@ class RFNetwork(nn.Module):
 
 
 
-    '''
-    def activation_in(self, x, cue, random=False):
+
+    def activation_in(self, x, random=False):
       x = torch.randn(x.shape) if random else x + (1e-10 + torch.max(x) - torch.min(x))/100*torch.randn(x.shape)
       final_x = torch.zeros(x.shape)
       for region_index, region in enumerate(self.in_regions):
@@ -65,7 +65,7 @@ class RFNetwork(nn.Module):
         x_prime[top_indices] = 1
         final_x[region]  = x_prime
       return final_x
-    '''
+
     
     def activation_in(self, x, cue=None, random=False):
       x = torch.randn(x.shape) if random else x + torch.abs(torch.min(x)/10)*torch.randn(x.shape)
@@ -82,15 +82,15 @@ class RFNetwork(nn.Module):
       x_prime[torch.topk(x, int(self.out_size*self.out_sparsity)).indices] = 1
       return x_prime
 
-    def pattern_complete(self, h_0=None, cue=None, num_iterations=None, depress_synapses=False):
+    def pattern_complete(self, h_0=None, num_iterations=None, depress_synapses=False):
 
       input_mask = torch.outer(h_0, h_0)
       depression_mask = torch.ones_like(self.in_in)
       aux_synapses = self.in_in.clone()
-      h = self.activation_in(h_0, cue)
+      h = self.activation_in(h_0)
       num_iterations = self.pattern_complete_iterations if num_iterations == None else num_iterations
       for iteration in range(num_iterations):
-        h = self.activation_in(F.linear(h, depression_mask*aux_synapses), cue)
+        h = self.activation_in(F.linear(h, depression_mask*aux_synapses))
         if depress_synapses:
           delta_depression = self.depression_amplitude*torch.outer(h, h)
           depression_mask[~input_mask.bool()] = ((1 - self.depression_beta)*depression_mask - delta_depression)[~input_mask.bool()]
