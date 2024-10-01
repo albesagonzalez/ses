@@ -88,7 +88,7 @@ def get_swap_probs(p0_xi_xj_1_1,  p0_xi_xj_1_0, p0_xi_xj_0_1, p0_xi_xj_0_0, K, N
     term1 = ((K - N_swap / 2) * (K - N_swap / 2 - 1)) / (K * (K - 1))
 
     # Second term
-    term2 = ((K - N_swap / 2) / K) * (N_swap / (N - K))
+    term2 = ((K - N_swap / 2) / K) * (N_swap/2 / (N - K))
 
 
     # Third term
