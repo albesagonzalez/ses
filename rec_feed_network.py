@@ -66,15 +66,6 @@ class RFNetwork(nn.Module):
         final_x[region]  = x_prime
       return final_x
 
-    
-    def activation_in(self, x, cue=None, random=False):
-      x = torch.randn(x.shape) if random else x + torch.abs(torch.min(x)/10)*torch.randn(x.shape)
-      x_max = torch.max(x)
-      x[cue == 1] = x_max + 1e-7
-      x_prime = torch.zeros(x.shape)
-      x_prime[torch.topk(x, int(self.in_size*self.in_sparsity)).indices] = 1
-      return x_prime
-
 
     def activation_out(self, x, random=False):
       x = torch.randn(x.shape) if random else x + torch.abs(torch.min(x)/10)*torch.randn(x.shape)
