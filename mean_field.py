@@ -206,8 +206,6 @@ def get_mean_field_solution(t, post_i, pre_j, i, sp, p, only_vars=False):
         w_free_inf = sp["lmbda"]*p["ij"][post_i, pre_j]*T_pre_free
         tau_w = sp["w_pre_max"]/(sp["lmbda"]*sp["K_post"]*p["j"][pre_j])
         fp_w = sp["w_pre_max"]*p["ij"][post_i, pre_j]/(sp["K_post"]*p["j"][pre_j])
-        if (pre_j == 200 and post_i == 150) or (pre_j == 150 and post_i == 200):
-         print(p["ij"][post_i, pre_j]*p["j"][pre_j])
         if (t < T_post_cond):
             S_pre = sp["w_pre_max"]
             beta_post = 1 - np.exp(-(t - T_pre_free)/tau_post)
@@ -252,5 +250,7 @@ def get_mean_field_solution(t, post_i, pre_j, i, sp, p, only_vars=False):
           pass
 
       pass
+      if (pre_j == 200 and post_i == 150) or (pre_j == 150 and post_i == 200):
+         print(p["ij"][post_i, pre_j]*p["j"][pre_j])
 
     return w, S_pre, S_post if only_vars else (T_pre_free, T_post_free, S_pre, S_post, tau_w, fp_w, w)
