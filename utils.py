@@ -228,7 +228,7 @@ def get_cos_sim_np(x1, x2):
   return np.dot(x1, x2)/(np.linalg.norm(x1)*np.linalg.norm(x2))
 
 
-def make_input(num_days, day_length, mean_duration, fixed_duration, num_swaps, latent_space, satellite=False):
+def make_input(num_days, day_length, mean_duration, fixed_duration, num_swaps, latent_space, regions, satellite=False):
   def get_partial_circle():
     delta_theta = 45
     image = np.zeros((40, 25), dtype=np.uint8)
@@ -275,7 +275,7 @@ def make_input(num_days, day_length, mean_duration, fixed_duration, num_swaps, l
         input_latents[day, day_timestep:day_timestep+pattern_duration] = latent_space.label_to_index[label]
       #label, pattern =  get_partial_circle()
       #input_latents[day, day_timestep:day_timestep+pattern_duration] = label
-      input[day, day_timestep:(day_timestep+pattern_duration)] = get_sample_from_num_swaps(pattern, num_swaps)
+      input[day, day_timestep:(day_timestep+pattern_duration)] = get_sample_from_num_swaps(pattern, num_swaps, regions)
       day_timestep += pattern_duration
 
   return input, input_latents
