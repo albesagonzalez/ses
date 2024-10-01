@@ -85,13 +85,13 @@ def get_swap_probs(p0_xi_xj_1_1,  p0_xi_xj_1_0, p0_xi_xj_0_1, p0_xi_xj_0_0, K, N
     """
     if same_region:
       term1 = ((K/2 - N_swap / 4) * (K/2 - N_swap / 4 - 1)) / (K/2 * (K/2 - 1))
-      term2 = ((K/2 - N_swap / 4) / K/2) * (N_swap/4 / (N/2 - K/2))
-      term3 = (N_swap/4 / (N/2 - K/2)) * ((N_swap/4 - 1) / (N/2 - K/2 - 1))
+      term2 = ((K/2 - N_swap / 4) / (K/2)) * (N_swap/4 / (N/2 - K/2))
+      term3 = (N_swap/4 / (N/2 - (K/2))) * ((N_swap/4 - 1) / (N/2 - K/2 - 1))
 
 
     else:
       term1 = ((K/2 - N_swap / 4) * (K/2 - N_swap / 4)) / (K/2 * (K/2))
-      term2 = ((K/2 - N_swap / 4) / K/2) * (N_swap/4 / (N/2 - K/2))
+      term2 = ((K/2 - N_swap / 4) / (K/2)) * (N_swap/4 / (N/2 - K/2))
       term3 = (N_swap/4 / (N/2 - K/2)) * ((N_swap/4) / (N/2 - K/2))
     #term1 = ((K/2 - N_swap / 4) * (K/2 - N_swap / 4)) / (K/2 * K/2)
     
