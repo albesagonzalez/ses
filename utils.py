@@ -96,7 +96,7 @@ def get_sample_from_num_swaps(x_0, num_swaps, regions=None):
           region_size = len(region)
 
           # Determine the number of swaps for this region
-          num_swaps_region = int(num_swaps * region_size / total_size)
+          num_swaps_region = round(num_swaps * region_size / total_size)
 
           # Get on and off indices for this region
           on_index = region[x_0[region] == 1]
