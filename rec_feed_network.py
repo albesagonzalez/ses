@@ -87,7 +87,7 @@ class RFNetwork(nn.Module):
       input_mask = torch.outer(h_0, h_0)
       depression_mask = torch.ones_like(self.in_in)
       aux_synapses = self.in_in.clone()
-      h = self.activation_in(h, cue)
+      h = self.activation_in(h_0, cue)
       num_iterations = self.pattern_complete_iterations if num_iterations == None else num_iterations
       for iteration in range(num_iterations):
         h_max = torch.max(h)
