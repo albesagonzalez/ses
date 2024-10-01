@@ -60,7 +60,7 @@ def get_original_probs(element_i, element_j):
       p_11, p_10, p_01, p_00 = 0.5*0.2, 0.5*0.8, 0.5*0.2, 0.5*0.8
 
    if element_i == 3 and element_j == 2:
-      p_11, p_10, p_01, p_00 = 0., 0.2, 0.8, 0.
+      p_11, p_10, p_01, p_00 = 0., 0.2, 0.8, 0
 
    if element_i == 3 and element_j == 3:
       p_11, p_10, p_01, p_00 = 0.2, 0, 0, 0.8
