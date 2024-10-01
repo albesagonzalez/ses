@@ -380,11 +380,10 @@ class RFNetwork(nn.Module):
 
       return distance_tensor
     
-
-def plot_activity(self, figsize, pattern=None):
-  activity = pattern if pattern==None else self.in_
-  fig, axes = plt.subplots(1, len(self.in_regions), figsize=figsize)
-  for ax, region, name in zip(axes, self.in_regions, self.in_regions_names):
-    ax.imshow(activity[region].reshape((-1, 50)))
-    ax.title(name, fontsize=20)
+    def plot_activity(self, figsize, pattern=None):
+      activity = pattern if pattern==None else self.in_
+      fig, axes = plt.subplots(1, len(self.in_regions), figsize=figsize)
+      for ax, region, name in zip(axes, self.in_regions, self.in_regions_names):
+        ax.imshow(activity[region].reshape((-1, 50)))
+        ax.title(name, fontsize=20)
 
