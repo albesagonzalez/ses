@@ -380,7 +380,7 @@ class RFNetwork(nn.Module):
 
       return distance_tensor
     
-    def plot_activity(self, figsize, pattern_size, cmap, pattern=None, show_title=True):
+    def plot_activity(self, figname, figsize, pattern_size, cmap, pattern=None, show_title=True):
         activity = pattern if pattern is not None else self.in_
         fig, axes = plt.subplots(len(self.in_regions), 1, figsize=figsize)
         
@@ -403,7 +403,7 @@ class RFNetwork(nn.Module):
             ax.set_xticks([])
             ax.set_yticks([])
 
-        plt.show()
+        plt.savefig(figname, dpi=300, transparent=True)
 
 '''
     def plot_activity(self, figsize, pattern_size, cmap, pattern=None, show_title=True):
