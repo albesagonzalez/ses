@@ -68,7 +68,7 @@ def get_original_probs(element_i, element_j):
    return p_11, p_10, p_01, p_00
 
 
-def get_swap_probs(p0_xi_xj_1_1,  p0_xi_xj_1_0, p0_xi_xj_0_1, p0_xi_xj_0_0, K, N_swap, N, same_region=False):
+def get_swap_probs(p0_xi_xj_1_1,  p0_xi_xj_1_0, p0_xi_xj_0_1, p0_xi_xj_0_0, K, N_swap, N, same_region):
     """
     Calculate the total probability of two neurons being active.
 
@@ -176,7 +176,10 @@ def get_probs(latent_space, input_size, network_sparsity, K, N_swap, N):
           element_j = (neuron_j - get_starting_neuron_from_attribute(attribute_j, latent_space))//latent_space.act_sizes[attribute_j]
           element_i, element_j = element_i + 2*attribute_i, element_j + 2*attribute_j
           p11, p10, p01, p00 = get_original_probs(element_i, element_j)
-          p["ij"][neuron_i][neuron_j] = get_swap_probs(p11, p10, p01, p00, K, N_swap, N)
+          if attribute_i == attribute_j:
+            p["ij"][neuron_i][neuron_j] = get_swap_probs(p11, p10, p01, p00, K, N_swap, N, same_region=True)
+         else:
+            p["ij"][neuron_i][neuron_j] = get_swap_probs(p11, p10, p01, p00, K, N_swap, N, same_region=False)
 
     p["i"] = network_sparsity*np.ones((input_size))
     p["j"] = network_sparsity*np.ones((input_size))
