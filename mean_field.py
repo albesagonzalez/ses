@@ -115,7 +115,7 @@ def get_swap_marginal(K, N_swap, N, p_0_i):
     float: The value of p(i)
     """
     term1 = ((K - N_swap / 2) / K) * ((K - N_swap / 2 - 1) / (K - 1)) * p_0_i
-    term2 = (N_swap / (N - K)) * (1 - p_0_i)
+    term2 = (N_swap/2 / (N - K)) * (1 - p_0_i)
 
     p_i = term1 + term2
     return p_i
