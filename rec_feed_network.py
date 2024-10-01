@@ -90,8 +90,6 @@ class RFNetwork(nn.Module):
       h = self.activation_in(h_0, cue)
       num_iterations = self.pattern_complete_iterations if num_iterations == None else num_iterations
       for iteration in range(num_iterations):
-        h_max = torch.max(h)
-        h[cue==1] = h_max +1e-7
         h = self.activation_in(F.linear(h, depression_mask*aux_synapses), cue)
         if depress_synapses:
           delta_depression = self.depression_amplitude*torch.outer(h, h)
