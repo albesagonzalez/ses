@@ -389,4 +389,5 @@ class RFNetwork(nn.Module):
           ax.set_title(name, fontsize=20)
         ax.set_xticks([], [])
         ax.set_yticks([], [])
+      plt.grid(True, which='both', color='black', linewidth=1)
 
