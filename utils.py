@@ -56,8 +56,8 @@ def get_cond_matrix(latent_space, weights, eta):
         th_cond_matrix[conditioned_sub_index][condition_sub_index] = 0
   return sim_cond_matrix, th_cond_matrix
 
-
-def get_sample_from_num_swaps(x_0, num_swaps):
+'''
+def get_sample_from_num_swaps(x_0, num_swaps, regions):
   x = x_0.clone().detach()
   #get on and off index
   on_index = x_0.nonzero().squeeze(1)
@@ -69,8 +69,33 @@ def get_sample_from_num_swaps(x_0, num_swaps):
   x[flip_off] = 0
   x[flip_on] = 1
   return x
+'''
 
+def get_sample_from_num_swaps(x_0, num_swaps, regions):
+    x = x_0.clone().detach()
 
+    total_size = sum([len(region) for region in regions])  # Total size of all regions
+
+    for region in regions:
+        # Get the size of the region
+        region_size = len(region)
+
+        # Determine the number of swaps for this region
+        num_swaps_region = int(num_swaps * region_size / total_size)
+
+        # Get on and off indices for this region
+        on_index = region[x_0[region] == 1]
+        off_index = region[x_0[region] == 0]
+
+        # Choose at random num_swaps_region indices
+        flip_off = on_index[torch.randperm(len(on_index))[:num_swaps_region // 2]]
+        flip_on = off_index[torch.randperm(len(off_index))[:num_swaps_region // 2]]
+
+        # Flip on to off and off to on within this region
+        x[flip_off] = 0
+        x[flip_on] = 1
+
+    return x
 
 
 class LatentSpace():
