@@ -382,8 +382,10 @@ class RFNetwork(nn.Module):
     
     def plot_activity(self, figsize, cmap, pattern=None):
       activity = pattern if pattern!=None else self.in_
-      fig, axes = plt.subplots(1, len(self.in_regions), figsize=figsize)
+      fig, axes = plt.subplots(len(self.in_regions), 1, figsize=figsize)
       for ax, region, name in zip(axes, self.in_regions, self.in_regions_names):
         ax.imshow(activity[region].reshape((-1, 50)), cmap)
         ax.set_title(name, fontsize=20)
+        ax.set_xtciks([], [])
+        ax.set_ytciks([], [])
 
