@@ -68,7 +68,7 @@ def get_original_probs(element_i, element_j):
    return p_11, p_10, p_01, p_00
 
 
-def get_swap_probs(p0_xi_xj_1_1,  p0_xi_xj_1_0, p0_xi_xj_0_1, p0_xi_xj_0_0, K, N_swap, N):
+def get_swap_probs(p0_xi_xj_1_1,  p0_xi_xj_1_0, p0_xi_xj_0_1, p0_xi_xj_0_0, K, N_swap, N, same_region=True):
     """
     Calculate the total probability of two neurons being active.
 
@@ -83,22 +83,25 @@ def get_swap_probs(p0_xi_xj_1_1,  p0_xi_xj_1_0, p0_xi_xj_0_1, p0_xi_xj_0_0, K, N
     Returns:
     float: The total probability p(x_i = 1, x_j = 1)
     """
+    if same_region:
+      term1 = ((K/2 - N_swap / 4) * (K/2 - N_swap / 4 - 1)) / (K/2 * (K/2 - 1))
+      term2 = ((K/2 - N_swap / 4) / K/2) * (N_swap/4 / (N/2 - K/2))
+      term3 = (N_swap/4 / (N/2 - K/2)) * ((N_swap/4 - 1) / (N/2 - K/2 - 1))
+    #term1 = ((K/2 - N_swap / 4) * (K/2 - N_swap / 4)) / (K/2 * K/2)
+    
 
-    # First term
-    term1 = ((K - N_swap / 2) * (K - N_swap / 2 - 1)) / (K * (K - 1))
 
     # Second term
-    term2 = ((K - N_swap / 2) / K) * (N_swap/2 / (N - K))
+
 
 
     # Third term
-    term3 = (N_swap/2 / (N - K)) * ((N_swap/2 - 1) / (N - K - 1))
+
 
     # Total probability
     total_prob = term1*p0_xi_xj_1_1 + term2*(p0_xi_xj_1_0 + p0_xi_xj_0_1) + term3*p0_xi_xj_0_0
 
     return total_prob
-
 
 
 def get_swap_marginal(K, N_swap, N, p_0_i):
@@ -114,8 +117,8 @@ def get_swap_marginal(K, N_swap, N, p_0_i):
     Returns:
     float: The value of p(i)
     """
-    term1 = ((K - N_swap / 2) / K) * ((K - N_swap / 2 - 1) / (K - 1)) * p_0_i
-    term2 = (N_swap/2 / (N - K)) * (1 - p_0_i)
+    term1 = ((K/2 - N_swap / 4) / (K/2)) * ((K/2 - N_swap / 4 - 1) / (K/2 - 1)) * p_0_i
+    term2 = (N_swap/4 / (N/2 - K/2)) * (1 - p_0_i)
 
     p_i = term1 + term2
     return p_i
