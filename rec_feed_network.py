@@ -87,13 +87,12 @@ class RFNetwork(nn.Module):
       input_mask = torch.outer(h_0, h_0)
       depression_mask = torch.ones_like(self.in_in)
       aux_synapses = self.in_in.clone()
-      h = self.in_ if h_0 == None else h_0
-      h = self.activation_in(h)
+      h = self.activation_in(h, cue)
       num_iterations = self.pattern_complete_iterations if num_iterations == None else num_iterations
       for iteration in range(num_iterations):
         h_max = torch.max(h)
         h[cue==1] = h_max +1e-7
-        h = self.activation_in(F.linear(h, depression_mask*aux_synapses))
+        h = self.activation_in(F.linear(h, depression_mask*aux_synapses), cue)
         if depress_synapses:
           delta_depression = self.depression_amplitude*torch.outer(h, h)
           depression_mask[~input_mask.bool()] = ((1 - self.depression_beta)*depression_mask - delta_depression)[~input_mask.bool()]
