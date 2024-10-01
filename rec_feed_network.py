@@ -386,6 +386,6 @@ class RFNetwork(nn.Module):
       for ax, region, name in zip(axes, self.in_regions, self.in_regions_names):
         ax.imshow(activity[region].reshape((-1, 50)), cmap)
         ax.set_title(name, fontsize=20)
-        ax.set_xtciks([], [])
-        ax.set_ytciks([], [])
+        ax.set_xticks([], [])
+        ax.set_yticks([], [])
 
