@@ -71,29 +71,44 @@ def get_sample_from_num_swaps(x_0, num_swaps, regions):
   return x
 '''
 
-def get_sample_from_num_swaps(x_0, num_swaps, regions):
-    x = x_0.clone().detach()
+def get_sample_from_num_swaps(x_0, num_swaps, regions=None):
+    if regions == None:
+      x = x_0.clone().detach()
+      #get on and off index
+      on_index = x_0.nonzero().squeeze(1)
+      off_index = (x_0 ==0).nonzero().squeeze(1)
+      #choose at random num_flips indices
+      flip_off = on_index[torch.randperm(len(on_index))[:int(num_swaps/2)]]
+      flip_on = off_index[torch.randperm(len(off_index))[:int(num_swaps/2)]]
+      #flip on to off and off to on
+      x[flip_off] = 0
+      x[flip_on] = 1
+      return x
+    
+    else:
 
-    total_size = sum([len(region) for region in regions])  # Total size of all regions
+      x = x_0.clone().detach()
 
-    for region in regions:
-        # Get the size of the region
-        region_size = len(region)
+      total_size = sum([len(region) for region in regions])  # Total size of all regions
 
-        # Determine the number of swaps for this region
-        num_swaps_region = int(num_swaps * region_size / total_size)
+      for region in regions:
+          # Get the size of the region
+          region_size = len(region)
 
-        # Get on and off indices for this region
-        on_index = region[x_0[region] == 1]
-        off_index = region[x_0[region] == 0]
+          # Determine the number of swaps for this region
+          num_swaps_region = int(num_swaps * region_size / total_size)
 
-        # Choose at random num_swaps_region indices
-        flip_off = on_index[torch.randperm(len(on_index))[:num_swaps_region // 2]]
-        flip_on = off_index[torch.randperm(len(off_index))[:num_swaps_region // 2]]
+          # Get on and off indices for this region
+          on_index = region[x_0[region] == 1]
+          off_index = region[x_0[region] == 0]
 
-        # Flip on to off and off to on within this region
-        x[flip_off] = 0
-        x[flip_on] = 1
+          # Choose at random num_swaps_region indices
+          flip_off = on_index[torch.randperm(len(on_index))[:num_swaps_region // 2]]
+          flip_on = off_index[torch.randperm(len(off_index))[:num_swaps_region // 2]]
+
+          # Flip on to off and off to on within this region
+          x[flip_off] = 0
+          x[flip_on] = 1
 
     return x
 
