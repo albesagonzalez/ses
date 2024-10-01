@@ -250,6 +250,7 @@ def get_mean_field_solution(t, post_i, pre_j, i, sp, p, only_vars=False):
           pass
 
       pass
+      print(pre_j, post_i)
       if (pre_j == 200 and post_i == 150) or (pre_j == 150 and post_i == 200):
          print(p["ij"][post_i, pre_j]*p["j"][pre_j])
 
