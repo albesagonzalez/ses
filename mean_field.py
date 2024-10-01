@@ -68,7 +68,7 @@ def get_original_probs(element_i, element_j):
    return p_11, p_10, p_01, p_00
 
 
-def get_swap_probs(p0_xi_xj_1_1,  p0_xi_xj_1_0, p0_xi_xj_0_1, p0_xi_xj_0_0, K, N_swap, N, same_region=True):
+def get_swap_probs(p0_xi_xj_1_1,  p0_xi_xj_1_0, p0_xi_xj_0_1, p0_xi_xj_0_0, K, N_swap, N, same_region=False):
     """
     Calculate the total probability of two neurons being active.
 
