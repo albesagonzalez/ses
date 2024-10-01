@@ -110,7 +110,7 @@ def get_sample_from_num_swaps(x_0, num_swaps, regions=None):
           x[flip_off] = 0
           x[flip_on] = 1
 
-    return x
+      return x
 
 
 class LatentSpace():
