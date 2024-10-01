@@ -380,12 +380,13 @@ class RFNetwork(nn.Module):
 
       return distance_tensor
     
-    def plot_activity(self, figsize, cmap, pattern=None):
+    def plot_activity(self, figsize, cmap, pattern=None, show_title=True):
       activity = pattern if pattern!=None else self.in_
       fig, axes = plt.subplots(len(self.in_regions), 1, figsize=figsize)
       for ax, region, name in zip(axes, self.in_regions, self.in_regions_names):
         ax.imshow(activity[region].reshape((-1, 50)), cmap)
-        ax.set_title(name, fontsize=20)
+        if show_title:
+          ax.set_title(name, fontsize=20)
         ax.set_xticks([], [])
         ax.set_yticks([], [])
 
