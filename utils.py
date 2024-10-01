@@ -243,7 +243,7 @@ def get_cos_sim_np(x1, x2):
   return np.dot(x1, x2)/(np.linalg.norm(x1)*np.linalg.norm(x2))
 
 
-def make_input(num_days, day_length, mean_duration, fixed_duration, num_swaps, latent_space, regions, satellite=False):
+def make_input(num_days, day_length, mean_duration, fixed_duration, num_swaps, latent_space, regions=None, satellite=False):
   def get_partial_circle():
     delta_theta = 45
     image = np.zeros((40, 25), dtype=np.uint8)
