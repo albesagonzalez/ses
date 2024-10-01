@@ -180,6 +180,10 @@ def get_probs(latent_space, input_size, network_sparsity, K, N_swap, N):
     return p
 
 def get_mean_field_solution(t, post_i, pre_j, i, sp, p, only_vars=False):
+    
+    print(pre_j, post_i)
+    if (pre_j == 200 and post_i == 150) or (pre_j == 150 and post_i == 200):
+      print(p["ij"][post_i, pre_j]*p["j"][pre_j])
 
     T_pre_free = sp["w_pre_max"]/(sp["K_post"]*sp["lmbda"]*p["j"][pre_j])
     T_post_free = sp["w_post_max"]/(sp["K_pre"]*sp["lmbda"]*p["i"][post_i])
@@ -250,8 +254,5 @@ def get_mean_field_solution(t, post_i, pre_j, i, sp, p, only_vars=False):
           pass
 
       pass
-      print(pre_j, post_i)
-      if (pre_j == 200 and post_i == 150) or (pre_j == 150 and post_i == 200):
-         print(p["ij"][post_i, pre_j]*p["j"][pre_j])
 
     return w, S_pre, S_post if only_vars else (T_pre_free, T_post_free, S_pre, S_post, tau_w, fp_w, w)
