@@ -55,8 +55,8 @@ class RFNetwork(nn.Module):
 
 
 
-
-    def activation_in(self, x, random=False):
+    '''
+    def activation_in(self, x, cue, random=False):
       x = torch.randn(x.shape) if random else x + (1e-10 + torch.max(x) - torch.min(x))/100*torch.randn(x.shape)
       final_x = torch.zeros(x.shape)
       for region_index, region in enumerate(self.in_regions):
@@ -65,6 +65,16 @@ class RFNetwork(nn.Module):
         x_prime[top_indices] = 1
         final_x[region]  = x_prime
       return final_x
+    '''
+    
+    def activation_in(self, x, cue, random=False):
+      x = torch.randn(x.shape) if random else x + torch.abs(torch.min(x)/10)*torch.randn(x.shape)
+      x_max = torch.max(x)
+      x[cue == 1] = x_max + 1e-7
+      x_prime = torch.zeros(x.shape)
+      x_prime[torch.topk(x, int(self.in_size*self.in_sparsity)).indices] = 1
+      return x_prime
+
 
     def activation_out(self, x, random=False):
       x = torch.randn(x.shape) if random else x + torch.abs(torch.min(x)/10)*torch.randn(x.shape)
@@ -248,8 +258,6 @@ class RFNetwork(nn.Module):
         else:
           homeostasis_out_in_post()
           homeostasis_out_in_pre()
-
-
 
 
       else:
