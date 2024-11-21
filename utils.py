@@ -1,6 +1,9 @@
 import numpy as np
 import cv2
 import torch
+import torch.nn as nn
+import torch.optim as optim
+from torch.utils.data import DataLoader, TensorDataset, random_split, Dataset
 
 import itertools
 import random
@@ -14,6 +17,81 @@ def get_Hopfield_Tsodyks(input):
   for pattern in processed_input:
       W += torch.outer(pattern, pattern)
   return W
+
+
+def get_ff(N, train_loader, num_epochs, lr):
+  class SelfSupervisedModel(nn.Module):
+    def __init__(self, N):
+        super(SelfSupervisedModel, self).__init__()
+        self.linear = nn.Linear(N, N)  # Single linear layer with N neurons
+        self.sigmoid = nn.Sigmoid()
+    def forward(self, x):
+        return self.sigmoid(self.linear(x))
+    
+
+  model = SelfSupervisedModel(N)
+  criterion = nn.MSELoss()  # Mean squared error loss for reconstruction
+  optimizer = optim.Adam(model.parameters(), lr=lr)
+  loss_curve = []     
+    
+  for epoch in range(num_epochs):
+      for data, labels in train_loader:
+          # Zero the parameter gradients
+          optimizer.zero_grad()
+
+          # Forward pass
+          outputs = model(data)
+          loss = criterion(outputs, labels)
+
+          # Backward pass and optimize
+          loss.backward()
+          optimizer.step()
+          loss_curve.append(loss.item())  # Store the loss value
+
+  return model, loss_curve
+
+def get_Boltzmann(N, train_loader, num_epochs, lr):
+  # Define the Boltzmann Machine model
+  class BoltzmannMachine(nn.Module):
+      def __init__(self, n_visible):
+          super(BoltzmannMachine, self).__init__()
+          self.weights = nn.Parameter(torch.randn(n_visible, n_visible) * 0.01)
+          nn.init.zeros_(self.weights.diagonal())  # No self-loops
+
+      def forward(self, v):
+          activation = torch.matmul(v, self.weights)
+          prob = torch.sigmoid(activation)
+          return torch.bernoulli(prob)
+
+  # Initialize the model
+  model = BoltzmannMachine(N)
+  optimizer = optim.SGD(model.parameters(), lr=lr)
+
+  # Training loop
+  for epoch in range(num_epochs):
+      for v_batch, label in train_loader:
+          batch_size = v_batch.size(0)
+          # Positive phase
+          pos_phase = torch.matmul(v_batch.T, v_batch) / batch_size
+
+          # Negative phase
+          gibbs_samples = model(v_batch)
+
+          neg_phase = torch.matmul(gibbs_samples.T, gibbs_samples) / batch_size
+
+          # Update weights
+          weight_update = lr * (pos_phase - neg_phase)
+          with torch.no_grad():
+              model.weights += weight_update
+
+      # Log training progress
+      if (epoch + 1) % 100 == 0:
+          with torch.no_grad():
+              # Compute reconstruction error
+              recon_error = torch.mean((v_batch - gibbs_samples) ** 2).item()
+          print(f"Epoch {epoch + 1}/{num_epochs}, Reconstruction Error: {recon_error:.4f}")
+  return model
+
 
 def get_Hebbian(input):
   W = torch.zeros((input.shape[2], input.shape[2]))
