@@ -3,6 +3,7 @@ import cv2
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset, random_split, Dataset
 
 import itertools
@@ -17,6 +18,51 @@ def get_Hopfield_Tsodyks(input):
   for pattern in processed_input:
       W += torch.outer(pattern, pattern)
   return W
+
+
+class ModernHopfieldNetwork(nn.Module):
+    def __init__(self, pattern_dim, num_patterns, beta=1.0):
+        """
+        Modern Hopfield Network
+        Args:
+            pattern_dim: Dimension of the patterns
+            num_patterns: Number of patterns to store
+            beta: Inverse temperature parameter (sharpness of attraction basin)
+        """
+        super(ModernHopfieldNetwork, self).__init__()
+        self.pattern_dim = pattern_dim
+        self.num_patterns = num_patterns
+        self.beta = beta
+
+        # Storage for the patterns
+        self.patterns = nn.Parameter(torch.zeros(num_patterns, pattern_dim), requires_grad=False)
+
+    def store_patterns(self, new_patterns):
+        """
+        Store patterns into the Hopfield Network
+        Args:
+            new_patterns: Tensor of shape (num_patterns, pattern_dim)
+        """
+        if new_patterns.shape != (self.num_patterns, self.pattern_dim):
+            raise ValueError(f"Expected shape ({self.num_patterns}, {self.pattern_dim}), got {new_patterns.shape}")
+        self.patterns.data = new_patterns.clone()
+
+    def forward(self, query):
+        """
+        Query the Hopfield network to retrieve the closest pattern.
+        Args:
+            query: Tensor of shape (batch_size, pattern_dim)
+        Returns:
+            The closest patterns (retrieved), shape (batch_size, pattern_dim)
+        """
+        # Compute pairwise similarities between query and stored patterns
+        similarity = torch.matmul(query, self.patterns.T)  # Shape: (batch_size, num_patterns)
+        # Apply softmax to retrieve patterns (energy minimization)
+        attention_weights = F.softmax(self.beta * similarity, dim=1)  # Shape: (batch_size, num_patterns)
+        # Weighted sum to reconstruct the pattern
+        retrieved_patterns = torch.matmul(attention_weights, self.patterns)  # Shape: (batch_size, pattern_dim)
+        return retrieved_patterns
+    
 
 
 def get_ff(N, train_loader, num_epochs, lr):
