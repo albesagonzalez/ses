@@ -331,6 +331,7 @@ class RFNetwork(nn.Module):
       self.out_in = self.out_in_fixed + self.out_in_plastic
 
       self.max_mixed_in_in = self.max_post_in_in + self.max_pre_in_in
+      self.max_mixed_out_in = self.max_post_out_in + self.max_pre_out_in
 
       self.hebb_dist_filter = torch.ones(self.in_in.shape) if self.hebb_distance_filter == None else self.init_distance_filter(self.hebb_distance_filter)
 
