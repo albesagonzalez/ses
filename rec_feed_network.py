@@ -298,7 +298,7 @@ class RFNetwork(nn.Module):
       elif self.homeostasis_in_in_type == 'renorm':
         #homeostasis_out_in_mixed()
         homeostasis_out_in_post()
-        homeostasis_out_in_pre
+        homeostasis_out_in_pre()
 
 
       else:
