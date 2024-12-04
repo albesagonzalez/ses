@@ -239,17 +239,64 @@ class RFNetwork(nn.Module):
         self.out_in = self.out_in_fixed + self.out_in_plastic
 
 
+      def homeostasis_out_in_mixed():
+        total_post_connectivity = torch.sum(self.out_in_plastic, dim=1)
+        total_pre_connectivity = torch.sum(self.out_in_plastic, dim=0)
+        total_pre_post_connectivity = total_post_connectivity + total_pre_connectivity.unsqueeze(1)
+
+        post_exceeding_mask = (total_post_connectivity >= self.max_post_out_in).clone().detach().unsqueeze(1).repeat(1, self.out_size)
+        pre_exceeding_mask = (total_pre_connectivity >= self.max_pre_out_in).clone().detach().unsqueeze(0).repeat(self.in_size, 1)
+        pre_post_exceeding_mask = (total_pre_post_connectivity >= 0.9*self.max_mixed_out_in).clone().detach() & post_exceeding_mask & pre_exceeding_mask
+
+        '''
+        post_scaling_factors = torch.where(
+            post_exceeding_mask & ~pre_post_exceeding_mask,
+            self.max_post_in_in / total_post_connectivity.unsqueeze(1),
+            torch.ones_like(self.in_in_plastic)
+        )
+
+        pre_scaling_factors = torch.where(
+            pre_exceeding_mask & ~pre_post_exceeding_mask,
+            self.max_pre_in_in / total_pre_connectivity,
+            torch.ones_like(self.in_in_plastic)
+        )
+
+        '''
+
+        post_scaling_factors = torch.where(
+            post_exceeding_mask,
+            self.max_post_out_in / total_post_connectivity.unsqueeze(1),
+            torch.ones_like(self.out_in_plastic)
+        )
+
+        pre_scaling_factors = torch.where(
+            pre_exceeding_mask,
+            self.max_pre_out_in / total_pre_connectivity,
+            torch.ones_like(self.out_in_plastic)
+          )
+
+        pre_post_scaling_factors = torch.where(
+            pre_post_exceeding_mask,
+            self.max_mixed_out_in/ total_pre_post_connectivity,
+            torch.ones_like(self.out_in_plastic)
+        )
+        #all_max = torch.tensor([pre_scaling_factors.max(), post_scaling_factors.max(), pre_post_scaling_factors.max()]).max()
+
+
+        #self.in_in_plastic = self.in_in_plastic*pre_scaling_factors*post_scaling_factors*pre_post_scaling_factors
+        self.out_in_plastic = self.out_in_plastic*pre_scaling_factors*post_scaling_factors
+
+        self.out_in = self.out_in_fixed + self.out_in_plastic
+
+
       if self.homeostasis_out_in_type == 'none':
         pass
       elif self.homeostasis_out_in_type == 'bound':
         self.out_in_plastic = torch.clip(self.out_in_plastic, min=None, max=torch.min(self.max_post_out_in. self.max_pre_out_in))
         self.out_in = self.out_in_fixed + self.out_in_plastic
-        if self.time_index%2 == 0:
-          homeostasis_out_in_pre()
-          homeostasis_out_in_post()
-        else:
-          homeostasis_out_in_post()
-          homeostasis_out_in_pre()
+
+      elif self.homeostasis_in_in_type == 'renorm':
+        homeostasis_out_in_mixed()
 
 
       else:
