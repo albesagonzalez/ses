@@ -296,7 +296,9 @@ class RFNetwork(nn.Module):
         self.out_in = self.out_in_fixed + self.out_in_plastic
 
       elif self.homeostasis_in_in_type == 'renorm':
-        homeostasis_out_in_mixed()
+        #homeostasis_out_in_mixed()
+        homeostasis_out_in_post()
+        homeostasis_out_in_pre
 
 
       else:
