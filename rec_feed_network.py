@@ -26,7 +26,7 @@ class RFNetwork(nn.Module):
             self.in_ =  self.pattern_complete(self.in_hat) if self.do_pattern_complete else self.activation_in(self.in_hat)
             
             self.out_hat =  F.linear(self.in_, self.out_in)
-            self.out = self.activation_out(self.out_hat, random=(not self.forward_input))
+            self.out = self.activation_out(self.out_hat, random=True)
 
             if self.learn_rec:
               self.hebbian_in_in()
