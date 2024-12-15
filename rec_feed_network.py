@@ -70,7 +70,7 @@ class RFNetwork(nn.Module):
 
 
     def activation_out(self, x, random=False):
-      x = torch.randn(x.shape) if random else x + (1e-10 + torch.max(x) - torch.min(x))/100*torch.randn(x.shape)
+      x = torch.randn(x.shape) if random else x + torch.abs((1e-10 + torch.max(x) - torch.min(x)))/1e2*torch.randn(x.shape)
       x_prime = torch.zeros(x.shape)
       x_prime[torch.topk(x, int(self.out_size*self.out_sparsity)).indices] = 1
       return x_prime
