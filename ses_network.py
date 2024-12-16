@@ -152,122 +152,146 @@ class SESNetwork(nn.Module):
       return h
 
     def hebbian_hpc_hpc(self):
-      self.hpc_hpc += self.lmbda_hpc_hpc*torch.outer(self.hpc, self.hpc)
-      self.hpc_hpc.fill_diagonal_(0.)
+      if self.frozen:
+        pass
+      else:
+        self.hpc_hpc += self.lmbda_hpc_hpc*torch.outer(self.hpc, self.hpc)
+        self.hpc_hpc.fill_diagonal_(0.)
 
     def hebbian_pfc_pfc(self):
-      self.pfc_pfc_plastic += self.lmbda_pfc_pfc*torch.outer(self.pfc, self.pfc)
-      self.pfc_pfc = self.pfc_pfc_fixed + self.pfc_pfc_plastic
-      #self.pfc_pfc.fill_diagonal_(0.)
+      if self.frozen:
+        pass
+      else:
+        self.pfc_pfc_plastic += self.lmbda_pfc_pfc*torch.outer(self.pfc, self.pfc)
+        self.pfc_pfc = self.pfc_pfc_fixed + self.pfc_pfc_plastic
+        #self.pfc_pfc.fill_diagonal_(0.)
 
     def hebbian_pfc_lec(self):
-      self.pfc_lec += self.lmbda_pfc_lec*torch.outer(self.pfc, self.lec)
+      if self.frozen:
+        pass
+      else:
+        self.pfc_lec += self.lmbda_pfc_lec*torch.outer(self.pfc, self.lec)
 
     def hebbian_mec_pfc(self):
-      self.mec_pfc += self.lmbda_mec_pfc*torch.outer(self.mec, self.pfc)
+      if self.frozen:
+        pass
+      else:
+        self.mec_pfc += self.lmbda_mec_pfc*torch.outer(self.mec, self.pfc)
 
     def hebbian_pfc_mec(self):
-      self.pfc_mec += self.lmbda_pfc_mec*torch.outer(self.pfc, self.mec)
+      if self.frozen:
+        pass
+      else:
+        self.pfc_mec += self.lmbda_pfc_mec*torch.outer(self.pfc, self.mec)
 
     def homeostasis_pfc_pfc(self):
-      if self.homeostasis == 'none':
+      if self.frozen:
         pass
+      else:
+        if self.homeostasis == 'none':
+          pass
 
-      elif self.homeostasis == 'bound':
-        self.pfc_pfc_plastic = torch.clip(self.pfc_pfc_plastic, min=None, max=self.max_connectivity/100)
-        self.pfc_pfc = self.pfc_pfc_fixed + self.pfc_pfc_plastic
-      elif self.homeostasis == 'renorm':
+        elif self.homeostasis == 'bound':
+          self.pfc_pfc_plastic = torch.clip(self.pfc_pfc_plastic, min=None, max=self.max_connectivity/100)
+          self.pfc_pfc = self.pfc_pfc_fixed + self.pfc_pfc_plastic
+        elif self.homeostasis == 'renorm':
 
 
+          # Calculate the total pre-connectivity for each neuron
+          total_post_connectivity = torch.sum(self.pfc_pfc_plastic, dim=1)
+          # Identify neurons that exceed the max pre-connectivity
+          post_exceeding_mask = total_post_connectivity > self.max_post_pfc_pfc_connectivity
+          # Scale the connectivities of the exceeding neurons
+          post_scaling_factors = torch.where(
+              post_exceeding_mask,
+              self.max_post_pfc_pfc_connectivity / total_post_connectivity,
+              torch.ones_like(total_post_connectivity)
+          )
+          # Apply the scaling factors to the connectivity matrix
+          self.pfc_pfc_plastic = self.pfc_pfc_plastic * post_scaling_factors.unsqueeze(1)
+
+
+          # Calculate the total pre-connectivity for each neuron
+          total_pre_connectivity = torch.sum(self.pfc_pfc_plastic, dim=0)
+          # Identify neurons that exceed the max pre-connectivity
+          pre_exceeding_mask = total_pre_connectivity > self.max_pre_pfc_pfc_connectivity
+          # Scale the connectivities of the exceeding neurons
+          pre_scaling_factors = torch.where(
+              pre_exceeding_mask,
+              self.max_pre_pfc_pfc_connectivity / total_pre_connectivity,
+              torch.ones_like(total_pre_connectivity)
+          )
+          # Apply the scaling factors to the connectivity matrix
+          self.pfc_pfc_plastic = self.pfc_pfc_plastic * pre_scaling_factors
+
+
+          self.pfc_pfc = self.pfc_pfc_fixed + self.pfc_pfc_plastic
+
+        else:
+          print("This type of homeostatic plasticity is not implemented")
+
+    def homeostasis_mec_pfc(self):
+      if self.frozen:
+        pass
+      else:
         # Calculate the total pre-connectivity for each neuron
-        total_post_connectivity = torch.sum(self.pfc_pfc_plastic, dim=1)
+        total_post_connectivity = torch.sum(self.mec_pfc, dim=1)
         # Identify neurons that exceed the max pre-connectivity
-        post_exceeding_mask = total_post_connectivity > self.max_post_pfc_pfc_connectivity
+        post_exceeding_mask = total_post_connectivity > self.max_post_mec_pfc_connectivity
         # Scale the connectivities of the exceeding neurons
         post_scaling_factors = torch.where(
             post_exceeding_mask,
-            self.max_post_pfc_pfc_connectivity / total_post_connectivity,
+            self.max_post_mec_pfc_connectivity / total_post_connectivity,
             torch.ones_like(total_post_connectivity)
         )
         # Apply the scaling factors to the connectivity matrix
-        self.pfc_pfc_plastic = self.pfc_pfc_plastic * post_scaling_factors.unsqueeze(1)
+        self.mec_pfc = self.mec_pfc * post_scaling_factors.unsqueeze(1)
 
 
         # Calculate the total pre-connectivity for each neuron
-        total_pre_connectivity = torch.sum(self.pfc_pfc_plastic, dim=0)
+        total_pre_connectivity = torch.sum(self.mec_pfc, dim=0)
         # Identify neurons that exceed the max pre-connectivity
-        pre_exceeding_mask = total_pre_connectivity > self.max_pre_pfc_pfc_connectivity
+        pre_exceeding_mask = total_pre_connectivity > self.max_pre_mec_pfc_connectivity
         # Scale the connectivities of the exceeding neurons
         pre_scaling_factors = torch.where(
             pre_exceeding_mask,
-            self.max_pre_pfc_pfc_connectivity / total_pre_connectivity,
+            self.max_pre_mec_pfc_connectivity / total_pre_connectivity,
             torch.ones_like(total_pre_connectivity)
         )
         # Apply the scaling factors to the connectivity matrix
-        self.pfc_pfc_plastic = self.pfc_pfc_plastic * pre_scaling_factors
-
-
-        self.pfc_pfc = self.pfc_pfc_fixed + self.pfc_pfc_plastic
-
-      else:
-        print("This type of homeostatic plasticity is not implemented")
-
-    def homeostasis_mec_pfc(self):
-      # Calculate the total pre-connectivity for each neuron
-      total_post_connectivity = torch.sum(self.mec_pfc, dim=1)
-      # Identify neurons that exceed the max pre-connectivity
-      post_exceeding_mask = total_post_connectivity > self.max_post_mec_pfc_connectivity
-      # Scale the connectivities of the exceeding neurons
-      post_scaling_factors = torch.where(
-          post_exceeding_mask,
-          self.max_post_mec_pfc_connectivity / total_post_connectivity,
-          torch.ones_like(total_post_connectivity)
-      )
-      # Apply the scaling factors to the connectivity matrix
-      self.mec_pfc = self.mec_pfc * post_scaling_factors.unsqueeze(1)
-
-
-      # Calculate the total pre-connectivity for each neuron
-      total_pre_connectivity = torch.sum(self.mec_pfc, dim=0)
-      # Identify neurons that exceed the max pre-connectivity
-      pre_exceeding_mask = total_pre_connectivity > self.max_pre_mec_pfc_connectivity
-      # Scale the connectivities of the exceeding neurons
-      pre_scaling_factors = torch.where(
-          pre_exceeding_mask,
-          self.max_pre_mec_pfc_connectivity / total_pre_connectivity,
-          torch.ones_like(total_pre_connectivity)
-      )
-      # Apply the scaling factors to the connectivity matrix
-      self.mec_pfc = self.mec_pfc * pre_scaling_factors
+        self.mec_pfc = self.mec_pfc * pre_scaling_factors
 
 
     def homeostasis_pfc_mec(self):
-      # Calculate the total pre-connectivity for each neuron
-      total_post_connectivity = torch.sum(self.pfc_mec, dim=1)
-      # Identify neurons that exceed the max pre-connectivity
-      post_exceeding_mask = total_post_connectivity > self.max_post_pfc_mec_connectivity
-      # Scale the connectivities of the exceeding neurons
-      post_scaling_factors = torch.where(
-          post_exceeding_mask,
-          self.max_post_pfc_mec_connectivity / total_post_connectivity,
-          torch.ones_like(total_post_connectivity)
-      )
-      # Apply the scaling factors to the connectivity matrix
-      self.pfc_mec = self.pfc_mec * post_scaling_factors.unsqueeze(1)
+      if self.frozen:
+        pass
+      else:
+        # Calculate the total pre-connectivity for each neuron
+        total_post_connectivity = torch.sum(self.pfc_mec, dim=1)
+        # Identify neurons that exceed the max pre-connectivity
+        post_exceeding_mask = total_post_connectivity > self.max_post_pfc_mec_connectivity
+        # Scale the connectivities of the exceeding neurons
+        post_scaling_factors = torch.where(
+            post_exceeding_mask,
+            self.max_post_pfc_mec_connectivity / total_post_connectivity,
+            torch.ones_like(total_post_connectivity)
+        )
+        # Apply the scaling factors to the connectivity matrix
+        self.pfc_mec = self.pfc_mec * post_scaling_factors.unsqueeze(1)
 
 
-      # Calculate the total pre-connectivity for each neuron
-      total_pre_connectivity = torch.sum(self.pfc_mec, dim=0)
-      # Identify neurons that exceed the max pre-connectivity
-      pre_exceeding_mask = total_pre_connectivity > self.max_pre_pfc_mec_connectivity
-      # Scale the connectivities of the exceeding neurons
-      pre_scaling_factors = torch.where(
-          pre_exceeding_mask,
-          self.max_pre_pfc_mec_connectivity / total_pre_connectivity,
-          torch.ones_like(total_pre_connectivity)
-      )
-      # Apply the scaling factors to the connectivity matrix
-      self.pfc_mec = self.pfc_mec * pre_scaling_factors
+        # Calculate the total pre-connectivity for each neuron
+        total_pre_connectivity = torch.sum(self.pfc_mec, dim=0)
+        # Identify neurons that exceed the max pre-connectivity
+        pre_exceeding_mask = total_pre_connectivity > self.max_pre_pfc_mec_connectivity
+        # Scale the connectivities of the exceeding neurons
+        pre_scaling_factors = torch.where(
+            pre_exceeding_mask,
+            self.max_pre_pfc_mec_connectivity / total_pre_connectivity,
+            torch.ones_like(total_pre_connectivity)
+        )
+        # Apply the scaling factors to the connectivity matrix
+        self.pfc_mec = self.pfc_mec * pre_scaling_factors
 
 
     def daily_reset(self):
@@ -280,6 +304,8 @@ class SESNetwork(nn.Module):
       #initialize network parameters
       for key, value in net_params.items():
         setattr(self, key, value)
+
+      self.frozen = False
 
       self.beta_hpc = np.exp(-1/self.tau_hpc)
       self.beta_pfc = np.exp(-1/self.tau_pfc)
@@ -325,26 +351,39 @@ class SESNetwork(nn.Module):
     def init_recordings(self, rec_params):
       self.activity_recordings = {}
       for region in rec_params["regions"]:
-        self.activity_recordings[region] = np.array([getattr(self, region)])
+        self.activity_recordings[region] = [getattr(self, region)]
       self.activity_recordings_rate = rec_params["rate_activity"]
-      self.activity_recordings_time = np.array([])
+      self.activity_recordings_time = []
       self.connectivity_recordings = {}
       for connection in rec_params["connections"]:
-        self.connectivity_recordings[connection] = np.array([getattr(self, connection)])
-      self.connectivity_recordings_time = np.array([])
+        self.connectivity_recordings[connection] = [getattr(self, connection)]
+      self.connectivity_recordings_time = []
       self.connectivity_recordings_rate = rec_params["rate_connectivity"]
 
     def record(self):
       if self.time_index%self.activity_recordings_rate == 0:
         for region in self.activity_recordings:
           layer_activity = getattr(self, region)
-          self.activity_recordings[region] = np.append(self.activity_recordings[region], [deepcopy(layer_activity.detach().numpy())], axis=0)
-          self.activity_recordings_time = np.append(self.activity_recordings_time, self.time_index)
+          self.activity_recordings[region].append(deepcopy(layer_activity.detach().numpy()))
+          self.activity_recordings_time.append(self.time_index)
       if self.time_index%self.connectivity_recordings_rate == 0:
         for connection in self.connectivity_recordings:
           connection_state = getattr(self, connection)
-          self.connectivity_recordings[connection] = np.append(self.connectivity_recordings[connection], [deepcopy(connection_state.detach().numpy())], axis=0)
-          self.connectivity_recordings_time = np.append(self.connectivity_recordings_time, self.time_index)
+          self.connectivity_recordings[connection].append(deepcopy(connection_state.detach().numpy()))
+          self.connectivity_recordings_time.append(self.time_index)
+
+    def recordings_to_np(self):
+      for region in self.activity_recordings:
+        self.activity_recordings[region] = np.array(self.activity_recordings[region])
+      for connection in self.connectivity_recordings:
+        self.connectivity_recordings[connection] = np.array(self.connectivity_recordings[connection])
+
+
+    def reset_recordings(self):
+      for region in self.activity_recordings:
+        self.activity_recordings[region] = np.array(self.activity_recordings[region])
+      for connection in self.connectivity_recordings:
+        self.connectivity_recordings[connection] = np.array(self.connectivity_recordings[connection])
     '''
     def init_recordings(self, rec_params):
       self.activity_recordings = {}
