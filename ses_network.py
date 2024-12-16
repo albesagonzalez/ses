@@ -21,7 +21,7 @@ class SESNetwork(nn.Module):
       self.process_input(input, test)
 
 
-      if not test:
+      if not self.frozen:
         self.sleep()
 
       self.baby_days += 1
