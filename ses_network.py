@@ -139,7 +139,7 @@ class SESNetwork(nn.Module):
       h = self.pfc if h_0 == None else h_0
       num_iterations = self.pattern_complete_iterations if num_iterations == None else num_iterations
       for iteration in range(num_iterations):
-        h = self.beta_pfc*h + (1 - self.beta_pfc)*self.activation_pfc(self.gamma_pfc_pfc*F.linear(h, self.pfc_pfc), top_k)
+        h = self.activation_pfc(self.gamma_pfc_pfc*F.linear(h, self.pfc_pfc), top_k)
       return h
 
     def hebbian_hpc_hpc(self):
