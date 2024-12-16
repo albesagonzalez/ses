@@ -36,10 +36,10 @@ class SESNetwork(nn.Module):
 
 
         #forward sensory and hpc to pfc
-        if self.adolescent_days < self.total_adolescent_days:
-          self.pfc_hat = self.gamma_pfc_sen*input[timestep] + self.gamma_pfc_lec*F.linear(self.lec, self.pfc_lec)
-        else:
-          self.pfc_hat = self.gamma_pfc_sen*input[timestep] + self.gamma_pfc_lec*F.linear(self.lec, self.pfc_lec) + self.gamma_pfc_mec*F.linear(self.mec, self.pfc_mec)
+        #if self.adolescent_days < self.total_adolescent_days:
+        #  self.pfc_hat = self.gamma_pfc_sen*input[timestep] + self.gamma_pfc_lec*F.linear(self.lec, self.pfc_lec)
+        #else:
+        #  self.pfc_hat = self.gamma_pfc_sen*input[timestep] + self.gamma_pfc_lec*F.linear(self.lec, self.pfc_lec) + self.gamma_pfc_mec*F.linear(self.mec, self.pfc_mec)
 
         self.pfc_hat = input[timestep]
         self.pfc = self.activation_pfc(self.pfc_hat)
