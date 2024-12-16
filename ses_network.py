@@ -41,8 +41,7 @@ class SESNetwork(nn.Module):
         else:
           self.pfc_hat = self.gamma_pfc_sen*input[timestep] + self.gamma_pfc_lec*F.linear(self.lec, self.pfc_lec) + self.gamma_pfc_mec*F.linear(self.mec, self.pfc_mec)
 
-        pfc_hat_noise_std = self.pfc_hat[torch.abs(self.pfc_hat) != 0].min()/10
-        self.pfc_hat = self.pfc_hat + torch.randn_like(self.pfc_hat) * pfc_hat_noise_std
+        self.pfc_hat = input[timestep]
         self.pfc = self.activation_pfc(self.pfc_hat)
 
         if self.baby_days < self.total_baby_days:
@@ -121,7 +120,8 @@ class SESNetwork(nn.Module):
         x_prime[torch.topk(x, int(self.lec_size*self.lec_sparsity + self.mec_size*self.mec_sparsity)).indices] = 1
       return x_prime
 
-    def activation_pfc(self, x, top_k=None):
+    def activation_pfc(self, x, random=False, top_k=None):
+      x = torch.randn(x.shape) if random else x + (1e-10 + torch.max(x) - torch.min(x))/100*torch.randn(x.shape)
       top_k = int(self.pfc_size*self.pfc_sparsity) if top_k==None else top_k
       x_prime = torch.zeros(x.shape)
       x_prime[torch.topk(x, top_k).indices] = 1
