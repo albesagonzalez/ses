@@ -45,33 +45,23 @@ class SESNetwork(nn.Module):
         self.pfc_hat = self.pfc_hat + torch.randn_like(self.pfc_hat) * pfc_hat_noise_std
         self.pfc = self.activation_pfc(self.pfc_hat)
 
-        if not test:
-          #potentiate hpc to pfc
-          self.hebbian_pfc_lec()
-
-          if self.baby_days < self.total_baby_days:
-            self.mec_hat = torch.zeros((self.mec_size))
-            self.mec = torch.zeros((self.mec_size))
-          else:
-            self.pfc = self.pattern_complete_pfc()
-            self.pfc = self.activation_pfc(self.pfc)
-            self.mec_hat = self.gamma_mec_pfc*F.linear(self.pfc, self.mec_pfc)
-            self.mec = self.activation_mec(self.mec_hat)
-            if self.adolescent_days > self.total_adolescent_days:
-              #statistical in mec to pfc
-              self.hebbian_pfc_mec()
-              self.homeostasis_pfc_mec()
-
-          #forward mec activity to hpc
-          self.hpc[self.lec_size:] = self.mec
-          #store hpc pattern
-          self.hebbian_hpc_hpc()
-
-
+        if self.baby_days < self.total_baby_days:
+          self.mec_hat = torch.zeros((self.mec_size))
+          self.mec = torch.zeros((self.mec_size))
         else:
-            self.pfc = self.pattern_complete_pfc()
-            self.pfc = self.activation_pfc(self.pfc)
+          self.pfc = self.pattern_complete_pfc()
+          self.pfc = self.activation_pfc(self.pfc)
+          self.mec_hat = self.gamma_mec_pfc*F.linear(self.pfc, self.mec_pfc)
+          self.mec = self.activation_mec(self.mec_hat)
+          if self.adolescent_days > self.total_adolescent_days:
+            #statistical in mec to pfc
+            self.hebbian_pfc_mec()
+            self.homeostasis_pfc_mec()
 
+        #forward mec activity to hpc
+        self.hpc[self.lec_size:] = self.mec
+        #store hpc pattern
+        self.hebbian_hpc_hpc()
 
         self.time_index += 1
 
