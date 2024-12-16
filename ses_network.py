@@ -59,8 +59,9 @@ class SESNetwork(nn.Module):
 
         #forward mec activity to hpc
         self.hpc[self.lec_size:] = self.mec
-        #store hpc pattern
+        #store hpc pattern and hpc to pfc
         self.hebbian_hpc_hpc()
+        self.hebbian_pfc_lec()
 
         self.time_index += 1
 
