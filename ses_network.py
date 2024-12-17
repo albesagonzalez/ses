@@ -82,6 +82,7 @@ class SESNetwork(nn.Module):
 
         
         self.pfc = self.activation_pfc(self.pfc_hat)
+        
 
         self.hebbian_pfc_pfc()
         self.homeostasis_pfc_pfc()
@@ -123,11 +124,25 @@ class SESNetwork(nn.Module):
 
     def activation_pfc(self, x, random=False, top_k=None):
       x = torch.randn(x.shape) if random else x + (1e-10 + torch.max(x) - torch.min(x))/100*torch.randn(x.shape)
-      top_k = int(self.pfc_size*self.pfc_sparsity) if top_k==None else top_k
       x_prime = torch.zeros(x.shape)
-      x_prime[torch.topk(x, top_k).indices] = 1
+      for region_index, region in enumerate(self.pfc_regions):
+        x_region = torch.zeros(len(region))
+        top_indices = torch.topk(x[region], int(len(region)*self.in_sparsity[region_index])).indices
+        x_region[top_indices] = 1
+        x_prime[region]  = x_region
 
       return x_prime
+    
+
+    def activation_in(self, x, random=False):
+      x = torch.randn(x.shape) if random else x + (1e-10 + torch.max(x) - torch.min(x))/100*torch.randn(x.shape)
+      final_x = torch.zeros(x.shape)
+      for region_index, region in enumerate(self.in_regions):
+        
+        
+        
+        
+      return final_x
 
     def pattern_complete_hpc(self, h_0=None):
       h = self.hpc_hpc(self.hpc) if h_0 == None else h_0
