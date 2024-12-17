@@ -134,16 +134,6 @@ class SESNetwork(nn.Module):
       return x_prime
     
 
-    def activation_in(self, x, random=False):
-      x = torch.randn(x.shape) if random else x + (1e-10 + torch.max(x) - torch.min(x))/100*torch.randn(x.shape)
-      final_x = torch.zeros(x.shape)
-      for region_index, region in enumerate(self.in_regions):
-        
-        
-        
-        
-      return final_x
-
     def pattern_complete_hpc(self, h_0=None):
       h = self.hpc_hpc(self.hpc) if h_0 == None else h_0
       for iteration in range(self.pattern_complete_iterations):
