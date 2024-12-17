@@ -127,7 +127,7 @@ class SESNetwork(nn.Module):
       x_prime = torch.zeros(x.shape)
       for region_index, region in enumerate(self.pfc_regions):
         x_region = torch.zeros(len(region))
-        top_indices = torch.topk(x[region], int(len(region)*self.in_sparsity[region_index])).indices
+        top_indices = torch.topk(x[region], int(len(region)*self.pfc_sparsity[region_index])).indices
         x_region[top_indices] = 1
         x_prime[region]  = x_region
 
