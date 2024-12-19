@@ -97,15 +97,18 @@ class SESNetwork(nn.Module):
           self.mec_hat = torch.zeros((self.mec_size))
           self.mec = torch.zeros((self.mec_size))
         else:
-          print("hey")
           h_0 = torch.bernoulli(self.random_pfc_sparsity*torch.ones(self.pfc_size))
+          self.pfc_sparsity = [0.05, 0.1]
           self.pfc = self.pattern_complete_pfc(h_0, top_k=50)
           self.pfc = self.activation_pfc(self.pfc, top_k=50)
+          self.pfc_sparsity = [0.1, 0.1]
+ 
           #self.mec_hat = self.gamma_mec_pfc*torch.matmul(self.mec_pfc, self.pfc)
           self.mec_hat = self.gamma_mec_pfc*F.linear(self.pfc, self.mec_pfc)
           self.mec = self.activation_mec(self.mec_hat, top_k=5)
           self.hebbian_mec_pfc()
           self.homeostasis_mec_pfc()
+
 
 
         self.time_index += 1
