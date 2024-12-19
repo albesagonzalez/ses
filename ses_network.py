@@ -84,9 +84,6 @@ class SESNetwork(nn.Module):
         self.pfc = self.activation_pfc(self.pfc_hat)
         
 
-        self.hebbian_pfc_pfc()
-        self.homeostasis_pfc_pfc()
-
         #update mec neurons (if not baby anymore)
         if self.baby_days < self.total_baby_days:
           self.mec_hat = torch.zeros((self.mec_size))
@@ -100,6 +97,10 @@ class SESNetwork(nn.Module):
           self.mec = self.activation_mec(self.mec_hat, top_k=5)
           self.hebbian_mec_pfc()
           self.homeostasis_mec_pfc()
+
+        self.hebbian_pfc_pfc()
+        self.homeostasis_pfc_pfc()
+        
         self.time_index += 1
         self.record()
 
