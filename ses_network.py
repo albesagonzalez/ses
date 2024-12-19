@@ -52,9 +52,9 @@ class SESNetwork(nn.Module):
           self.pfc = self.activation_pfc(self.pfc)
           self.mec_hat = self.gamma_mec_pfc*F.linear(self.pfc, self.mec_pfc)
           self.mec = self.activation_mec(self.mec_hat)
-          if self.baby_days > self.total_baby_days:
-            self.hebbian_pfc_pfc()
-            self.homeostasis_pfc_pfc()
+          #self.hebbian_pfc_pfc()
+          #self.homeostasis_pfc_pfc()
+
           if self.adolescent_days > self.total_adolescent_days:
             #statistical in mec to pfc
             self.hebbian_pfc_mec()
