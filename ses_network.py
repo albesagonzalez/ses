@@ -97,6 +97,7 @@ class SESNetwork(nn.Module):
           self.mec_hat = torch.zeros((self.mec_size))
           self.mec = torch.zeros((self.mec_size))
         else:
+          print("hey")
           h_0 = torch.bernoulli(self.random_pfc_sparsity*torch.ones(self.pfc_size))
           self.pfc = self.pattern_complete_pfc(h_0, top_k=50)
           self.pfc = self.activation_pfc(self.pfc, top_k=50)
