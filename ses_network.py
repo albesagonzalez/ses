@@ -89,6 +89,7 @@ class SESNetwork(nn.Module):
 
         self.hebbian_pfc_pfc()
         self.homeostasis_pfc_pfc()
+        #
         
 
         #update mec neurons (if not baby anymore)
