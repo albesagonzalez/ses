@@ -42,6 +42,7 @@ class SESNetwork(nn.Module):
         #  self.pfc_hat = self.gamma_pfc_sen*input[timestep] + self.gamma_pfc_lec*F.linear(self.lec, self.pfc_lec) + self.gamma_pfc_mec*F.linear(self.mec, self.pfc_mec)
 
         self.pfc_hat[:self.sen_size] = input[timestep]
+        self.pfc_hat[self.sen_size:] = 0
         self.pfc = self.activation_pfc(self.pfc_hat)
 
         if self.baby_days < self.total_baby_days:
